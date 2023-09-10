@@ -40,7 +40,6 @@ export default function SignUp() {
   const desc = useSelector(state => state.user.desc);
   const code = useSelector(state => state.user.code);
   const [formErrors, setFormErrors] = useState({});
-  const [formValues, setFormValues] = useState({});
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -109,32 +108,26 @@ export default function SignUp() {
   const handleFirstNameChange = (e) => {
     clearError();
     setFirstName(e.target.value);
-    setFormValues({...formValues, firstName: e.target.value});
   }
 
   const handleLastNameChange = (e) => {
     clearError();
     setLastName(e.target.value);
-    setFormValues({...formValues, lastName: e.target.value});
   }
 
   const handleRoleChange = (e) => {
     clearError();
     setRole(e.target.value);
-    setFormValues({...formValues, role: e.target.value});
   };
 
   const handleEmailChange = (e) => {
     clearError();
     setEmail(e.target.value);
-    setFormValues({...formValues, email: e.target.value});
   };
 
   const handlePasswordChange = (e) => {
     clearError();
     setPassword(e.target.value);
-    setFormValues({...formValues, password: e.target.value});
-    console.log(formValues);
   };
 
   return (
