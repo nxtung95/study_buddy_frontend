@@ -1,6 +1,6 @@
 import React from "react";
 import Appbar from "./AppBar";
-import Student from "./Student";
+import User from "./User";
 import { colors } from "../Styles/theme";
 
 function SignupScreen() {
@@ -8,7 +8,7 @@ function SignupScreen() {
     <div style={{ backgroundColor: colors.primaryBackground }}>
       <header></header>
       <Appbar />
-      <Student />
+      <User />
     </div>
   );
 }

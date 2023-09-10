@@ -1,21 +1,16 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import userAPI from "../../service/UserAPI";
 
-export const addNewStudent = createAsyncThunk(
-  "user/addNewStudent",
-  async (studentData, thunkAPI) => {
+export const register = createAsyncThunk(
+  "user/register",
+  async (data, thunkAPI) => {
     try {
-      const response = await fetch("http://localhost:8080/student/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(studentData),
-      });
-
-      if (!response.ok) {
-        // Handle error scenario
-        const errorData = await response.json();
-        return thunkAPI.rejectWithValue(errorData);
-      }
-
+      const response = await userAPI.register(data);
+      // if (!response.ok) {
+      //   // Handle error scenario
+      //   const errorData = await response.json();
+      //   return thunkAPI.rejectWithValue(errorData.data);
+      // }
       return response.json();
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: "An error occurred" });
@@ -25,13 +20,9 @@ export const addNewStudent = createAsyncThunk(
 
 export const login = createAsyncThunk(
   "user/login",
-  async (studentData, thunkAPI) => {
+  async (data, thunkAPI) => {
     try {
-      const response = await fetch("http://localhost:8080/student/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(studentData),
-      });
+      const response = await userAPI.login(data);
 
       if (!response.ok) {
         // Handle error scenario
@@ -50,8 +41,10 @@ const userSlice = createSlice({
   name: "user",
   initialState: {
     isLoading: false,
-    error: null,
+    code: "",
+    desc: "",
     subjects: [],
+    currentUser: {}
   },
   reducers: {
     signUpSuccess: (state) => {
@@ -72,9 +65,24 @@ const userSlice = createSlice({
       state.subjects = updatedSubjects;
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(register.pending, (state) => {
+      state.isLoading = true;
+    });
+
+    builder.addCase(register.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.desc = action.payload.desc;
+      state.code = action.payload.code;
+    });
+
+    builder.addCase(login.rejected, (state, action) => {
+      state.isLoading = false;
+      state.desc = action.payload.error;
+    });
+  },
 });
 
-export const { signUpSuccess, signUpFailure, addSubject, deleteSubject } =
-  userSlice.actions;
-
+export const { signUpSuccess, signUpFailure, addSubject, deleteSubject } = userSlice.actions;
+export const { isLoading, code, message, subjects, currentUser} = (state) => state.user;
 export default userSlice.reducer;
