@@ -38,8 +38,8 @@ export default function SignUp() {
   const [isOpenDialogOpen, setIsOpenDialogOpen] = useState(false);
   const isLoading = useSelector(state => state.user.isLoading);
   const desc = useSelector(state => state.user.desc);
-  const code = useSelector(state => state.user.code);
   const [formErrors, setFormErrors] = useState({});
+  const [registerFailed, setRegisterFailed] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -65,19 +65,25 @@ export default function SignUp() {
         setFormErrors({...formErrors, email: {message : 'Invalid format email'}});
         return;
     }
+    if (commonUtility.checkNullOrEmpty(password)) {
+      setFormErrors({...formErrors, password: {message : 'Please enter your password'}});
+      return;
+    }
 
     dispatch(register(user))
         .unwrap()
         .then((result) => {
-          console.log(result);
-          if (commonUtility.isSuccess(code)) {
+          if (commonUtility.isSuccess(result.code)) {
             setIsOpenDialogOpen(true);
+            setRegisterFailed(false);
           } else {
-
+            setRegisterFailed(true);
           }
         })
         .catch((error) => {
           console.log(error);
+          setRegisterFailed(true);
+          setIsOpenDialogOpen(true);
         });
     };
 
@@ -95,7 +101,7 @@ export default function SignUp() {
 
   const handleClose = () => {
     setIsOpenDialogOpen(false); // Close the success dialog
-    if (commonUtility.isSuccess(code)) {
+    if (!registerFailed) {
       resetFormFields();
       window.location.reload();
     }
@@ -145,7 +151,7 @@ export default function SignUp() {
             <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
               <LockOutlinedIcon />
             </Avatar>
-            <Stack sx={{ width: '100%' }} spacing={2} visibility={(commonUtility.checkNullOrEmpty(code) || commonUtility.isSuccess(code)) ? 'hidden' : 'visible'}>
+            <Stack sx={{ width: '100%' }} spacing={2} visibility={registerFailed ? 'visible' : 'hidden'}>
               <Alert severity="error">
                 <AlertTitle>Error</AlertTitle>
                 <strong>{desc}</strong>
@@ -250,9 +256,9 @@ export default function SignUp() {
                 </Grid>
               </Grid>
               <Dialog open={isOpenDialogOpen} onClose={handleClose}>
-                <DialogTitle>{commonUtility.isSuccess(code) ? 'Account Created Successfully' : 'Error'}</DialogTitle>
+                <DialogTitle>{registerFailed ? 'Register failed' : 'Account Created Successfully'}</DialogTitle>
                 <DialogContent>
-                  {commonUtility.isSuccess(code) ? 'Congratulations! Your account has been created successfully.' : 'System error'}
+                  {registerFailed ? 'System error' : 'Congratulations! Your account has been created successfully.'}
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={handleClose} color="primary" autoFocus>

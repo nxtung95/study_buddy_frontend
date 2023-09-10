@@ -1,12 +1,12 @@
 import Appbar from "./AppBar";
-import Student from "./Student";
+import User from "./User";
 
 function LoginScreen() {
   return (
     <div>
       <header></header>
       <Appbar />
-      <Student />
+      <User />
     </div>
   );
 }

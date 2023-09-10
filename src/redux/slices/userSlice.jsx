@@ -24,11 +24,11 @@ export const login = createAsyncThunk(
     try {
       const response = await userAPI.login(data);
 
-      if (!response.ok) {
-        // Handle error scenario
-        const errorData = await response.json();
-        return thunkAPI.rejectWithValue(errorData);
-      }
+      // if (!response.ok) {
+      //   // Handle error scenario
+      //   const errorData = await response.json();
+      //   return thunkAPI.rejectWithValue(errorData);
+      // }
 
       return response.json();
     } catch (error) {
@@ -47,13 +47,6 @@ const userSlice = createSlice({
     currentUser: {}
   },
   reducers: {
-    signUpSuccess: (state) => {
-      state.isLoading = false;
-    },
-    signUpFailure: (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-    },
     addSubject: (state, action) => {
       state.subjects.push(action.payload);
     },
@@ -76,6 +69,26 @@ const userSlice = createSlice({
       state.code = action.payload.code;
     });
 
+    builder.addCase(register.rejected, (state, action) => {
+      state.isLoading = false;
+      state.desc = action.payload.error;
+    });
+
+    builder.addCase(login.pending, (state) => {
+      state.isLoading = true;
+    });
+
+    builder.addCase(login.fulfilled, (state, action) => {
+      console.log(action);
+      state.isLoading = false;
+      state.desc = action.payload.desc;
+      state.code = action.payload.code;
+      if (action.payload.code === '00') {
+        localStorage.setItem("access_token", action.payload.accessToken);
+        state.currentUser = action.payload.user;
+      }
+    });
+
     builder.addCase(login.rejected, (state, action) => {
       state.isLoading = false;
       state.desc = action.payload.error;
@@ -83,6 +96,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { signUpSuccess, signUpFailure, addSubject, deleteSubject } = userSlice.actions;
+export const { addSubject, deleteSubject } = userSlice.actions;
 export const { isLoading, code, message, subjects, currentUser} = (state) => state.user;
 export default userSlice.reducer;
