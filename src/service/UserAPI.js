@@ -1,4 +1,4 @@
-import API_URL from '../const/APIConstant'
+import API_URL from '../const/Constant'
 
 const userAPI = {
     register(data) {
