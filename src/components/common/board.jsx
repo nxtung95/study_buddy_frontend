@@ -4,7 +4,7 @@ import Subject from "./subject";
 import { useSelector } from "react-redux";
 
 const Board = () => {
-  const subjects = useSelector((state) => state.user.subjects);
+  const subjects = useSelector((state) => state.user.currentUser.subjects);
 
   return (
     <div style={styles.boardContainer}>
@@ -13,10 +13,12 @@ const Board = () => {
       </div>
       <div style={styles.content}>
         <div style={styles.cardsContainer}>
-          {subjects.map((subject, index) => {
-            console.log("Subject data:", subject); // Add this console.log statement
-            return <Subject key={index} title={subject} />;
-          })}
+          {
+            subjects && subjects.map((subject, index) => {
+              console.log("Subject data:", subject); // Add this console.log statement
+              return <Subject key={index} subject={subject} />;
+            })
+          }
         </div>
       </div>
     </div>

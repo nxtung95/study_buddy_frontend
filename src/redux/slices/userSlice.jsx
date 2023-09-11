@@ -43,19 +43,20 @@ const userSlice = createSlice({
     isLoading: false,
     code: "",
     desc: "",
-    subjects: [],
-    currentUser: {}
+    currentUser: {
+      subjects: []
+    }
   },
   reducers: {
-    addSubject: (state, action) => {
-      state.subjects.push(action.payload);
+    addUserSubject: (state, action) => {
+      state.currentUser.subjects.unshift(action.payload);
     },
-    deleteSubject: (state, action) => {
+    deleteUserSubject: (state, action) => {
       const subjectToDelete = action.payload;
-      const updatedSubjects = state.subjects.filter(
-        (subject) => subject !== subjectToDelete
+      const updatedSubjects = state.currentUser.subjects.filter(
+        (subject) => subject.id !== subjectToDelete.id
       );
-      state.subjects = updatedSubjects;
+      state.currentUser.subjects = updatedSubjects;
     },
   },
   extraReducers: (builder) => {
@@ -96,6 +97,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { addSubject, deleteSubject } = userSlice.actions;
-export const { isLoading, code, message, subjects, currentUser} = (state) => state.user;
+export const { addUserSubject, deleteUserSubject } = userSlice.actions;
+export const { isLoading, code, message, currentUser} = (state) => state.user;
 export default userSlice.reducer;

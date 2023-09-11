@@ -1,16 +1,7 @@
 const authService = {
-    authHeader() {
-        const token = localStorage.getItem("token");
-
-        if (token) {
-            return {
-                headers: {
-                    Authorization: "Bearer " + token
-                }
-            };
-        } else {
-            return {};
-        }
+    getAccessTokenHeader() {
+        const token = localStorage.getItem("access_token");
+        return token;
     }
 }
 

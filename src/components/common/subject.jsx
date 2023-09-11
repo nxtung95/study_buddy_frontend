@@ -1,15 +1,17 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { fonts } from "../Styles/theme";
+import React, {useState} from "react";
+import {useDispatch} from "react-redux";
+import {fonts} from "../Styles/theme";
 import Card from "./card";
 import IconButton from "@mui/material/IconButton";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { deleteSubject } from "../../redux/slices/userSlice";
+import {deleteUserSubject} from "../../redux/slices/userSlice";
+import {deleteSubject} from "../../redux/slices/subjectSlice";
+import commonUtility from "../../utility/CommonUtility";
 
-const Subject = ({ title }) => {
+const Subject = ({ subject }) => {
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -22,14 +24,24 @@ const Subject = ({ title }) => {
   };
 
   const handleDeleteSubject = () => {
-    dispatch(deleteSubject(title)); // Pass the subject title to the action
-    handleMenuClose(); // Close the menu after deleting
+    dispatch(deleteSubject(subject.id))
+        .unwrap()
+        .then((result) => {
+          if (commonUtility.isSuccess(result.code)) {
+            dispatch(deleteUserSubject(subject));
+          }
+          handleMenuClose(); // Close the menu after deleting
+        })
+        .catch(() => {
+          console.log("Delete Subject has failed");
+        });
+
   };
 
   return (
     <div style={styles.subjectContainer}>
       <div style={styles.titleContainer}>
-        <h3 style={styles.title}>{title}</h3>
+        <h3 style={styles.title}>{subject.title}</h3>
         <IconButton onClick={handleMoreClick}>
           <MoreHorizIcon />
         </IconButton>

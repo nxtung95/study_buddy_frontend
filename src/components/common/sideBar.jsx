@@ -1,15 +1,34 @@
-import React, { useState } from "react";
-import { fonts } from "../Styles/theme";
-import { useDispatch } from "react-redux";
-import { addSubject } from "../../redux/slices/userSlice";
-import {Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Button, Box, FormControl, InputLabel} from '@mui/material';
+import React, {useState} from "react";
+import {fonts} from "../Styles/theme";
+import {useDispatch, useSelector} from "react-redux";
+import {addUserSubject} from "../../redux/slices/userSlice";
+import {addNewSubject} from "../../redux/slices/subjectSlice";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  TextField
+} from '@mui/material';
 import commonUtility from "../../utility/CommonUtility";
+import CircularProgress from "@mui/material/CircularProgress";
+import Stack from "@mui/material/Stack";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
   const [openSubjectForm, setOpenSubjectForm] = useState(false);
   const [title, setTitle] = useState("");
   const [formErrors, setFormErrors] = useState({});
+  const [addSubjectFail, setAddSubjectFail] = useState(false);
+  const [isOpenDialog, setIsOpenDialog] = useState(false);
+  const isLoading = useSelector(state => state.subject.isLoading);
+  const desc = useSelector(state => state.subject.desc);
 
   const handleAddSubjectClick = () => {
     setOpenSubjectForm(!openSubjectForm);
@@ -28,6 +47,13 @@ const Sidebar = () => {
     setTitle(e.target.value);
   }
 
+  const handleCloseDialog = () => {
+    setIsOpenDialog(false); // Close the success dialog
+    if (!addSubjectFail) {
+      setTitle("");
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -38,83 +64,104 @@ const Sidebar = () => {
       return;
     }
 
-    // dispatch(login(data))
-    //     .unwrap()
-    //     .then((result) => {
-    //       if (commonUtility.isSuccess(result.code)) {
-    //         navigate("/HomeScreen");
-    //         setLoginFailed(false);
-    //       } else {
-    //         setLoginFailed(true);
-    //       }
-    //     })
-    //     .catch(() => {
-    //       console.log("Login has failed");
-    //       setLoginFailed(true);
-    //     });
+    dispatch(addNewSubject(data))
+        .unwrap()
+        .then((result) => {
+          if (commonUtility.isSuccess(result.code)) {
+            dispatch(addUserSubject(result.subject));
+            setIsOpenDialog(true);
+          } else {
+            setAddSubjectFail(true);
+          }
+        })
+        .catch(() => {
+          console.log("Add Subject has failed");
+          setAddSubjectFail(true);
+          setIsOpenDialog(true);
+        });
   }
 
   return (
-    <div style={styles.sidebar}>
-      <div style={styles.buttons}>
-        <button style={styles.button}>Profile</button>
-        <button style={styles.button}>Tutors</button>
-        <button style={styles.button}>Board Settings</button>
-        <div style={styles.line}></div>
-        <button style={styles.subjectButton} onClick={handleAddSubjectClick}>
-          Add Subject
-        </button>
-        {openSubjectForm && (
-            <Dialog open={openSubjectForm} onClose={handleClose} fullWidth="xs">
-              <DialogTitle>Subject</DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  Add subject here.
-                </DialogContentText>
+      <React.Fragment>
+        <div style={styles.sidebar} sx={{opacity: isLoading ? '0.5' : '1'}}>
+          <div style={styles.buttons}>
+            <button style={styles.button}>Profile</button>
+            <button style={styles.button}>Tutors</button>
+            <button style={styles.button}>Board Settings</button>
+            <div style={styles.line}></div>
+            <button style={styles.subjectButton} onClick={handleAddSubjectClick}>
+              Add Subject
+            </button>
+            {openSubjectForm && (
+                <Dialog open={openSubjectForm} onClose={handleClose} fullWidth={true}>
+                  <DialogTitle>Subject</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText>
+                      Add subject
+                    </DialogContentText>
 
-                <Box
-                    noValidate
-                    component="form"
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      m: 'auto',
-                      width: 'fit-content',
-                    }}
-                    onSubmit={handleSubmit}
-                >
-                  <FormControl sx={{ mt: 2, minWidth: 550 }}>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="subjectTitle"
-                        label="Subject Title"
-                        type="text"
-                        name="subjectTitle"
-                        fullWidth
-                        variant="standard"
-                        onchange={handleOnChangeSubjectTitle}
-                        error={formErrors['subjectTitle']}
-                        helperText={formErrors['subjectTitle'] ? formErrors['subjectTitle'].message : ''}
-                    />
-                  </FormControl>
-                  <Button
-                      type="submit"
-                      fullWidth
-                      variant="contained"
-                      sx={{ mt: 3, mb: 2 }}
-                  >
-                    Add subject
-                  </Button>
-                </Box>
+                    <Stack sx={{ width: '100%' }} spacing={2}>
+                      <Alert severity="error">
+                        <AlertTitle>Error</AlertTitle>
+                        <strong>{desc}</strong>
+                      </Alert>
+                    </Stack>
+
+                    <Box
+                        noValidate
+                        component="form"
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          m: 'auto',
+                          width: 'fit-content',
+                        }}
+                        onSubmit={handleSubmit}
+                    >
+                      <FormControl sx={{ mt: 2, minWidth: 550 }}>
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="subjectTitle"
+                            label="Subject Title"
+                            type="text"
+                            name="subjectTitle"
+                            fullWidth
+                            variant="standard"
+                            onChange={(e) => handleOnChangeSubjectTitle(e)}
+                            error={formErrors['subjectTitle'] ? true : false}
+                            helperText={formErrors['subjectTitle'] ? formErrors['subjectTitle'].message : ''}
+                        />
+                      </FormControl>
+                      <Button
+                          type="submit"
+                          fullWidth
+                          variant="contained"
+                          sx={{ mt: 3, mb: 2 }}
+                      >
+                        Add subject
+                      </Button>
+                    </Box>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleClose}>Close</Button>
+                  </DialogActions>
+                </Dialog>
+            )}
+            <Dialog open={isOpenDialog} onClose={handleCloseDialog}>
+              <DialogTitle>{addSubjectFail ? 'Add subject failed' : 'Subject Created Successfully'}</DialogTitle>
+              <DialogContent>
+                {addSubjectFail ? 'System error' : 'Congratulations! Subject Created Successfully!.'}
               </DialogContent>
               <DialogActions>
-                <Button onClick={handleClose}>Close</Button>
+                <Button onClick={handleCloseDialog} color="primary" autoFocus>
+                  Close
+                </Button>
               </DialogActions>
             </Dialog>
-        )}
-      </div>
-    </div>
+          </div>
+        </div>
+      </React.Fragment>
   );
 };
 

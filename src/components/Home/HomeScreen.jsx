@@ -1,8 +1,11 @@
-import { colors, fonts } from "../Styles/theme";
+import {colors, fonts} from "../Styles/theme";
 import React from "react";
 import Typography from "@mui/material/Typography";
 import SideBar from "../common/sideBar";
 import Board from "../common/board";
+import {useSelector} from "react-redux";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const styles = {
   container: {
@@ -23,13 +26,13 @@ const styles = {
 
 const HomeScreen = () => {
   return (
-    <div style={styles.container}>
-      <Typography style={styles.title}>StudyBuddy</Typography>
-      <div style={styles.content}>
-        <SideBar />
-        <Board />
+      <div style={styles.container}>
+        <Typography style={styles.title}>StudyBuddy</Typography>
+        <div style={styles.content}>
+          <SideBar />
+          <Board/>
+        </div>
       </div>
-    </div>
   );
 };
 
