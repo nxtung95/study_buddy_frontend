@@ -1,23 +1,58 @@
 import React, { useState } from "react";
 import { fonts } from "../Styles/theme";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 import { useDispatch } from "react-redux";
 import { addSubject } from "../../redux/slices/userSlice";
+import {Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Button, Box, FormControl, InputLabel} from '@mui/material';
+import commonUtility from "../../utility/CommonUtility";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedSubject, setSelectedSubject] = useState("");
+  const [openSubjectForm, setOpenSubjectForm] = useState(false);
+  const [title, setTitle] = useState("");
+  const [formErrors, setFormErrors] = useState({});
 
   const handleAddSubjectClick = () => {
-    setShowDropdown(!showDropdown);
+    setOpenSubjectForm(!openSubjectForm);
   };
 
-  const handleSubjectSelect = (selectedSubject) => {
-    dispatch(addSubject(selectedSubject));
-    setShowDropdown(false);
+  const handleClose = () => {
+    setOpenSubjectForm(false);
   };
+
+  const clearError = () => {
+    setFormErrors({});
+  }
+
+  const handleOnChangeSubjectTitle = (e) => {
+    clearError();
+    setTitle(e.target.value);
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const data = { title };
+
+    if (commonUtility.checkNullOrEmpty(title)) {
+      setFormErrors({...formErrors, subjectTitle: {message : 'Please enter your title'}});
+      return;
+    }
+
+    // dispatch(login(data))
+    //     .unwrap()
+    //     .then((result) => {
+    //       if (commonUtility.isSuccess(result.code)) {
+    //         navigate("/HomeScreen");
+    //         setLoginFailed(false);
+    //       } else {
+    //         setLoginFailed(true);
+    //       }
+    //     })
+    //     .catch(() => {
+    //       console.log("Login has failed");
+    //       setLoginFailed(true);
+    //     });
+  }
 
   return (
     <div style={styles.sidebar}>
@@ -29,38 +64,54 @@ const Sidebar = () => {
         <button style={styles.subjectButton} onClick={handleAddSubjectClick}>
           Add Subject
         </button>
-        {showDropdown && (
-          <Select
-            value={selectedSubject}
-            onChange={(e) => setSelectedSubject(e.target.value)}
-            displayEmpty
-            style={styles.languageDropdown}
-          >
-            <MenuItem value="" disabled>
-              Select Language
-            </MenuItem>
-            <MenuItem
-              style={styles.dropdownOption}
-              value="Math"
-              onClick={(e) => handleSubjectSelect(e.target.value)}
-            >
-              Math
-            </MenuItem>
-            <MenuItem
-              style={styles.dropdownOption}
-              value="Science"
-              onClick={(e) => handleSubjectSelect(e.target.value)}
-            >
-              Science
-            </MenuItem>
-            <MenuItem
-              style={styles.dropdownOption}
-              value="English"
-              onClick={(e) => handleSubjectSelect(e.target.value)}
-            >
-              English
-            </MenuItem>
-          </Select>
+        {openSubjectForm && (
+            <Dialog open={openSubjectForm} onClose={handleClose} fullWidth="xs">
+              <DialogTitle>Subject</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Add subject here.
+                </DialogContentText>
+
+                <Box
+                    noValidate
+                    component="form"
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      m: 'auto',
+                      width: 'fit-content',
+                    }}
+                    onSubmit={handleSubmit}
+                >
+                  <FormControl sx={{ mt: 2, minWidth: 550 }}>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="subjectTitle"
+                        label="Subject Title"
+                        type="text"
+                        name="subjectTitle"
+                        fullWidth
+                        variant="standard"
+                        onchange={handleOnChangeSubjectTitle}
+                        error={formErrors['subjectTitle']}
+                        helperText={formErrors['subjectTitle'] ? formErrors['subjectTitle'].message : ''}
+                    />
+                  </FormControl>
+                  <Button
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      sx={{ mt: 3, mb: 2 }}
+                  >
+                    Add subject
+                  </Button>
+                </Box>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose}>Close</Button>
+              </DialogActions>
+            </Dialog>
         )}
       </div>
     </div>
