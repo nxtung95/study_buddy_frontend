@@ -15,7 +15,6 @@ import {
   TextField
 } from '@mui/material';
 import commonUtility from "../../utility/CommonUtility";
-import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
@@ -27,7 +26,6 @@ const Sidebar = () => {
   const [formErrors, setFormErrors] = useState({});
   const [addSubjectFail, setAddSubjectFail] = useState(false);
   const [isOpenDialog, setIsOpenDialog] = useState(false);
-  const isLoading = useSelector(state => state.subject.isLoading);
   const desc = useSelector(state => state.subject.desc);
 
   const handleAddSubjectClick = () => {
@@ -83,7 +81,7 @@ const Sidebar = () => {
 
   return (
       <React.Fragment>
-        <div style={styles.sidebar} sx={{opacity: isLoading ? '0.5' : '1'}}>
+        <div style={styles.sidebar}>
           <div style={styles.buttons}>
             <button style={styles.button}>Profile</button>
             <button style={styles.button}>Tutors</button>
@@ -100,7 +98,7 @@ const Sidebar = () => {
                       Add subject
                     </DialogContentText>
 
-                    <Stack sx={{ width: '100%' }} spacing={2}>
+                    <Stack sx={{ width: '100%' }} spacing={2} visibility={addSubjectFail ? 'visible' : 'hidden'}>
                       <Alert severity="error">
                         <AlertTitle>Error</AlertTitle>
                         <strong>{desc}</strong>

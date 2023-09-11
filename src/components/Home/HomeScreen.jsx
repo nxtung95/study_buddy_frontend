@@ -3,9 +3,6 @@ import React from "react";
 import Typography from "@mui/material/Typography";
 import SideBar from "../common/sideBar";
 import Board from "../common/board";
-import {useSelector} from "react-redux";
-import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
 
 const styles = {
   container: {

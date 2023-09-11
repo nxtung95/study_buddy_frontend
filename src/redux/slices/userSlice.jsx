@@ -51,6 +51,15 @@ const userSlice = createSlice({
     addUserSubject: (state, action) => {
       state.currentUser.subjects.unshift(action.payload);
     },
+    editUserSubject: (state, action) => {
+      const updateSubject = action.payload;
+      for (let i = 0; i < state.currentUser.subjects.length; i++) {
+        if (state.currentUser.subjects[i].id === updateSubject.id) {
+          state.currentUser.subjects[i].title = updateSubject.title;
+          break;
+        }
+      }
+    },
     deleteUserSubject: (state, action) => {
       const subjectToDelete = action.payload;
       const updatedSubjects = state.currentUser.subjects.filter(
@@ -97,6 +106,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { addUserSubject, deleteUserSubject } = userSlice.actions;
+export const { addUserSubject, editUserSubject, deleteUserSubject } = userSlice.actions;
 export const { isLoading, code, message, currentUser} = (state) => state.user;
 export default userSlice.reducer;

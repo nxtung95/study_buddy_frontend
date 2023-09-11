@@ -1,16 +1,16 @@
 import React from "react";
-import { fonts } from "../Styles/theme";
+import {fonts} from "../Styles/theme";
 
-const Card = ({ isAnswered }) => {
+const Card = ({ question }) => {
   return (
     <div style={styles.cardContainer}>
       {/* Pill indicating answered status */}
       <div
-        style={isAnswered ? styles.answeredPill : styles.notAnsweredPill}
+        style={question.status === 1 ? styles.answeredPill : styles.notAnsweredPill}
       ></div>
 
       {/* Title */}
-      <h3 style={styles.cardTitle}>Trigonometry Question</h3>
+      <h3 style={styles.cardTitle}>{question.title}</h3>
 
       {/* <p style={styles.cardContent}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod
@@ -18,7 +18,11 @@ const Card = ({ isAnswered }) => {
       </p> */}
 
       {/* Answered by text */}
-      <p style={styles.answeredByText}>Answered by: John Doe</p>
+      {
+        question.status === 1 && (
+            <p style={styles.answeredByText}>Answered by: John Doe</p>
+        )
+      }
     </div>
   );
 };

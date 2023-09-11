@@ -9,6 +9,7 @@ const Board = () => {
   return (
     <div style={styles.boardContainer}>
       <div style={styles.header}>
+
         <h2 style={styles.title}>Max's Board</h2>
       </div>
       <div style={styles.content}>
