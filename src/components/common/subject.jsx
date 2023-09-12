@@ -22,6 +22,7 @@ import {
   FormHelperText,
   TextField,
   Input,
+  TextareaAutosize
 } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
@@ -29,8 +30,8 @@ import AlertTitle from "@mui/material/AlertTitle";
 import Grid from "@mui/material/Grid";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
-import MinHeightTextarea from "./customTextArea";
 import ImageUploadCard from "./uploadImage";
+import {addQuestion} from "../../redux/slices/questionSlice";
 
 const Subject = ({ subject }) => {
   const dispatch = useDispatch();
@@ -43,6 +44,13 @@ const Subject = ({ subject }) => {
   const [editSubjectFail, setEditSubjectFail] = useState(false);
   const desc = useSelector(state => state.subject.desc);
   const tutors = useSelector(state => state.user.tutors);
+  const [tutor, setTutor] = useState("");
+  const [fileSelectedList, setFileSelectedList] = useState([]);
+  const [inputText, setInputText] = useState("");
+  const [formCardErrors, setFormCardErrors] = useState({});
+  const isLoadingCard = useSelector(state => state.question.isLoading);
+  const descAddCard = useSelector(state => state.question.desc);
+  const [addCardFail, setAddCardFail] = useState(false);
 
   const handleMoreClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -141,6 +149,69 @@ const Subject = ({ subject }) => {
           console.log("Edit Subject has failed");
           setEditSubjectFail(true);
         });
+  }
+
+  const clearErrorAddCard = () => {
+    setFormCardErrors({});
+  }
+
+  const handleTutorChange = (e) => {
+    setTutor(e.target.value);
+    clearErrorAddCard();
+  }
+
+  const handleChangeTitle = (e) => {
+    setTitle(e.target.value);
+    clearErrorAddCard();
+  }
+
+  const handleInputTextChange = (e) => {
+    setInputText(e.target.value);
+    clearErrorAddCard();
+  }
+
+  const handleSubmitAddCard = (e) => {
+    e.preventDefault();
+
+    const question = {
+      "tutorId": tutor,
+      "subjectId": subject.id,
+      "title": title,
+      "inputText": inputText,
+      "files": fileSelectedList
+    };
+
+    console.log("Add question: " + JSON.stringify(question));
+
+    //Validate
+    if (commonUtility.checkNullOrEmpty(title)) {
+      setFormCardErrors({...formCardErrors, title: {message : 'Please enter your question title'}});
+      return;
+    }
+    if (commonUtility.checkNullOrEmpty(tutor)) {
+      setFormCardErrors({...formCardErrors, tutor: {message : 'Please choose the tutor'}});
+      return;
+    }
+    if (commonUtility.checkNullOrEmpty(inputText)) {
+      setFormCardErrors({...formCardErrors, inputText: {message : 'Please enter your question input text'}});
+      return;
+    }
+
+    dispatch(addQuestion(question))
+        .unwrap()
+        .then((result) => {
+          if (commonUtility.isSuccess(result.code)) {
+            // dispatch(editUserSubject(result.subject));
+            setFormCardErrors(false);
+          } else {
+            setFormCardErrors(true);
+          }
+        })
+        .catch(() => {
+          console.log("Add card has failed");
+          setFormCardErrors(true);
+        });
+
   }
 
   return (
@@ -263,12 +334,12 @@ const Subject = ({ subject }) => {
                 Add card
               </DialogContentText>
 
-              {/*<Stack sx={{ width: '100%' }} spacing={2}>*/}
-              {/*  <Alert severity="error">*/}
-              {/*    <AlertTitle>Error</AlertTitle>*/}
-              {/*    /!*<strong>{desc}</strong>*!/*/}
-              {/*  </Alert>*/}
-              {/*</Stack>*/}
+              <Stack sx={{ width: '100%' }} spacing={2} visibility={addCardFail ? 'visible' : 'hidden'}>
+                <Alert severity="error">
+                  <AlertTitle>Error</AlertTitle>
+                  <strong>{descAddCard}</strong>
+                </Alert>
+              </Stack>
 
               <Box
                   noValidate
@@ -279,22 +350,35 @@ const Subject = ({ subject }) => {
                     m: 'auto',
                     width: 'fit-content',
                   }}
-                  // onSubmit={handleSubmit}
+                  onSubmit={handleSubmitAddCard}
               >
                 <Grid container spacing={2}>
                   <Grid item xs={12} sx={{ mt: 2, minWidth: 500 }}>
-                    <FormControl fullWidth>
+                    <TextField
+                        required
+                        fullWidth
+                        id="title"
+                        label="Title"
+                        name="title"
+                        autoComplete="title"
+                        onChange={(e) => handleChangeTitle(e)}
+                        disabled={isLoadingCard}
+                        error={!!formCardErrors['title']}
+                        helperText={formCardErrors['title'] ? formCardErrors['title'].message : ''}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sx={{ mt: 2, minWidth: 500 }}>
+                    <FormControl fullWidth error={!!formCardErrors['tutor']} >
                       <InputLabel id="tutor-label">Tutor</InputLabel>
                       <Select
                           labelId="tutor-label"
                           id="tutor"
-                          // value={role}
                           label="Select tutor"
                           name="tutor"
-                          // onChange={(e) => handleRoleChange(e)}
-                          // disabled={isLoading}
+                          onChange={(e) => handleTutorChange(e)}
+                          disabled={isLoadingCard}
                       >
-                        <MenuItem value="">None</MenuItem>
+                        <MenuItem value=''>Select tutor</MenuItem>
                         {
                             tutors && (
                                 tutors.map((tutor, index) => {
@@ -303,14 +387,15 @@ const Subject = ({ subject }) => {
                             )
                         }
                       </Select>
-                      {/*<FormHelperText disabled={!!formErrors['role']}>{formErrors['role'] ? formErrors['role'].message : ''}</FormHelperText>*/}
+                      <FormHelperText disabled={!!formCardErrors['tutor']}>{formCardErrors['tutor'] ? formCardErrors['tutor'].message : ''}</FormHelperText>
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sx={{ mt: 2 }}>
-                    <MinHeightTextarea minRows={15} placeholder="Enter input text question"></MinHeightTextarea>
+                  <Grid item xs={12} sx={{ mt: 2, minWidth: 500 }}>
+                    <TextareaAutosize minRows={15} placeholder="Enter input text question" onChange={handleInputTextChange}></TextareaAutosize>
+                    <FormHelperText disabled={!!formCardErrors['inputText']} sx={{ color: "#ffebee" }}>{formCardErrors['inputText'] ? formCardErrors['inputText'].message : ''}</FormHelperText>
                   </Grid>
                   <Grid item xs={12} sx={{ mt: 2, mb: 5 }}>
-                    <ImageUploadCard />
+                    <ImageUploadCard setFileSelectedList={setFileSelectedList}/>
                   </Grid>
                 </Grid>
                 <Button

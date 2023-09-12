@@ -13,7 +13,6 @@ import blue from "@material-ui/core/colors/blue";
 import AddPhotoAlternateIcon from "@material-ui/icons/AddPhotoAlternate";
 
 // Search
-
 //Tabs
 import {withStyles} from "@material-ui/core/styles";
 
@@ -65,9 +64,8 @@ const styles = theme => ({
 
 class ImageUploadCard extends React.Component {
     state = {
-        mainState: "initial", // initial, search, gallery, uploaded
-        imageUploaded: 0,
-        selectedFile: null
+        mainState: "initial", // initial, uploaded
+        selectedFileList: []
     };
 
     handleUploadClick = event => {
@@ -77,16 +75,15 @@ class ImageUploadCard extends React.Component {
         var url = reader.readAsDataURL(file);
 
         reader.onloadend = function(e) {
+            const selectedFileList = [...this.state.selectedFileList, {"file": file, "data": [reader.result]}];
             this.setState({
-                selectedFile: [reader.result]
+                selectedFileList: selectedFileList
             });
+            this.props.setFileSelectedList(selectedFileList);
+            console.log("Image URL: " + url);
         }.bind(this);
-        console.log("Image URL: " + url); // Would see a path?
-
         this.setState({
             mainState: "uploaded",
-            selectedFile: event.target.files[0],
-            imageUploaded: 1
         });
     };
 
@@ -120,13 +117,33 @@ class ImageUploadCard extends React.Component {
 
         return (
             <React.Fragment>
-                <CardActionArea>
-                    <img
-                        width="100%"
-                        className={classes.media}
-                        src={this.state.selectedFile}
+                <Grid container justifyContent="flex-start" alignItems="center">
+                    <input
+                        accept="image/*"
+                        className={classes.input}
+                        id="contained-button-file"
+                        multiple
+                        type="file"
+                        onChange={this.handleUploadClick}
                     />
-                </CardActionArea>
+                    <label htmlFor="contained-button-file">
+                        <Fab component="span" className={classes.button}>
+                            <AddPhotoAlternateIcon />
+                        </Fab>
+                    </label>
+                    <CardActionArea>
+                        {
+                            this.state.selectedFileList.map((selectedFile, index) => {
+                                return <img
+                                    width="25%"
+                                    className={classes.media}
+                                    src={selectedFile.data}
+                                    key={index}
+                                />
+                            })
+                        }
+                    </CardActionArea>
+                </Grid>
             </React.Fragment>
         );
     }
