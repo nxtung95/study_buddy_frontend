@@ -7,7 +7,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import {deleteUserSubject, editUserSubject} from "../../redux/slices/userSlice";
+import {deleteUserSubject, editUserSubject, findTutor} from "../../redux/slices/userSlice";
 import {deleteSubject, editSubject} from "../../redux/slices/subjectSlice";
 import commonUtility from "../../utility/CommonUtility";
 import {
@@ -19,11 +19,18 @@ import {
   DialogContentText,
   DialogTitle,
   FormControl,
-  TextField
+  FormHelperText,
+  TextField,
+  Input,
 } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
+import Grid from "@mui/material/Grid";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MinHeightTextarea from "./customTextArea";
+import ImageUploadCard from "./uploadImage";
 
 const Subject = ({ subject }) => {
   const dispatch = useDispatch();
@@ -35,6 +42,7 @@ const Subject = ({ subject }) => {
   const [formErrors, setFormErrors] = useState({});
   const [editSubjectFail, setEditSubjectFail] = useState(false);
   const desc = useSelector(state => state.subject.desc);
+  const tutors = useSelector(state => state.user.tutors);
 
   const handleMoreClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -65,7 +73,18 @@ const Subject = ({ subject }) => {
   };
 
   const openAddQuestionDialog = () => {
-    setOpenQuestionForm(!openQuestionForm);
+    dispatch(findTutor())
+        .unwrap()
+        .then((result) => {
+          if (commonUtility.isSuccess(result.code)) {
+            setOpenQuestionForm(!openQuestionForm);
+          } else {
+            console.log("Find tutor has failed");
+          }
+        })
+        .catch(() => {
+          console.log("Find tutor has failed");
+        });
   }
 
   const closeAddQuestionDialog = () => {
@@ -142,22 +161,26 @@ const Subject = ({ subject }) => {
       </div>
 
       {/*Delete subject confirm dialog*/}
-      <Dialog
-          open={openConfirmDeleteDialog}
-          onClose={handleCloseDeleteDialogConfirm}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Do you want to delete this subject?"}
-        </DialogTitle>
-        <DialogActions>
-          <Button onClick={handleDeleteSubject} autoFocus>
-            Yes
-          </Button>
-          <Button onClick={handleCloseDeleteDialogConfirm}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
+      {
+        openConfirmDeleteDialog && (
+              <Dialog
+                  open={openConfirmDeleteDialog}
+                  onClose={handleCloseDeleteDialogConfirm}
+                  aria-labelledby="alert-dialog-title"
+                  aria-describedby="alert-dialog-description"
+              >
+                <DialogTitle id="alert-dialog-title">
+                  {"Do you want to delete this subject?"}
+                </DialogTitle>
+                <DialogActions>
+                  <Button onClick={handleDeleteSubject} autoFocus>
+                    Yes
+                  </Button>
+                  <Button onClick={handleCloseDeleteDialogConfirm}>Cancel</Button>
+                </DialogActions>
+              </Dialog>
+        )}
+
 
       {/*Edit subject dialog*/}
       {openEditSubjectDialog && (
@@ -240,12 +263,12 @@ const Subject = ({ subject }) => {
                 Add card
               </DialogContentText>
 
-              <Stack sx={{ width: '100%' }} spacing={2}>
-                <Alert severity="error">
-                  <AlertTitle>Error</AlertTitle>
-                  {/*<strong>{desc}</strong>*/}
-                </Alert>
-              </Stack>
+              {/*<Stack sx={{ width: '100%' }} spacing={2}>*/}
+              {/*  <Alert severity="error">*/}
+              {/*    <AlertTitle>Error</AlertTitle>*/}
+              {/*    /!*<strong>{desc}</strong>*!/*/}
+              {/*  </Alert>*/}
+              {/*</Stack>*/}
 
               <Box
                   noValidate
@@ -258,26 +281,43 @@ const Subject = ({ subject }) => {
                   }}
                   // onSubmit={handleSubmit}
               >
-                <FormControl sx={{ mt: 2 }}>
-                  <TextField
-                      autoFocus
-                      margin="dense"
-                      id="subjectTitle"
-                      label="Subject Title"
-                      type="text"
-                      name="subjectTitle"
-                      fullWidth
-                      variant="standard"
-                      // onChange={(e) => handleOnChangeSubjectTitle(e)}
-                      // error={formErrors['subjectTitle'] ? true : false}
-                      // helperText={formErrors['subjectTitle'] ? formErrors['subjectTitle'].message : ''}
-                  />
-                </FormControl>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sx={{ mt: 2, minWidth: 500 }}>
+                    <FormControl fullWidth>
+                      <InputLabel id="tutor-label">Tutor</InputLabel>
+                      <Select
+                          labelId="tutor-label"
+                          id="tutor"
+                          // value={role}
+                          label="Select tutor"
+                          name="tutor"
+                          // onChange={(e) => handleRoleChange(e)}
+                          // disabled={isLoading}
+                      >
+                        <MenuItem value="">None</MenuItem>
+                        {
+                            tutors && (
+                                tutors.map((tutor, index) => {
+                                    return <MenuItem key={index} value={tutor.id}>{tutor.firstName + " " + tutor.lastName}</MenuItem>
+                                })
+                            )
+                        }
+                      </Select>
+                      {/*<FormHelperText disabled={!!formErrors['role']}>{formErrors['role'] ? formErrors['role'].message : ''}</FormHelperText>*/}
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sx={{ mt: 2 }}>
+                    <MinHeightTextarea minRows={15} placeholder="Enter input text question"></MinHeightTextarea>
+                  </Grid>
+                  <Grid item xs={12} sx={{ mt: 2, mb: 5 }}>
+                    <ImageUploadCard />
+                  </Grid>
+                </Grid>
                 <Button
                     type="submit"
                     fullWidth
                     variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
+                    sx={{ mt: 5, mb: 2 }}
                 >
                   Add card
                 </Button>

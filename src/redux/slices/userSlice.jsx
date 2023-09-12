@@ -24,17 +24,24 @@ export const login = createAsyncThunk(
     try {
       const response = await userAPI.login(data);
 
-      // if (!response.ok) {
-      //   // Handle error scenario
-      //   const errorData = await response.json();
-      //   return thunkAPI.rejectWithValue(errorData);
-      // }
-
       return response.json();
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: "An error occurred" });
     }
   }
+);
+
+export const findTutor = createAsyncThunk(
+    "user/findTutor",
+    async (thunkAPI) => {
+      try {
+        const response = await userAPI.findTutor();
+
+        return response.json();
+      } catch (error) {
+        return thunkAPI.rejectWithValue({ error: "An error occurred" });
+      }
+    }
 );
 
 const userSlice = createSlice({
@@ -45,7 +52,8 @@ const userSlice = createSlice({
     desc: "",
     currentUser: {
       subjects: []
-    }
+    },
+    tutors: []
   },
   reducers: {
     addUserSubject: (state, action) => {
@@ -103,9 +111,17 @@ const userSlice = createSlice({
       state.isLoading = false;
       state.desc = action.payload.error;
     });
+
+    builder.addCase(findTutor.fulfilled, (state, action) => {
+      state.desc = action.payload.desc;
+      state.code = action.payload.code;
+      if (action.payload.code === '00') {
+        state.tutors = action.payload.tutors;
+      }
+    });
   },
 });
 
 export const { addUserSubject, editUserSubject, deleteUserSubject } = userSlice.actions;
-export const { isLoading, code, message, currentUser} = (state) => state.user;
+export const { isLoading, code, message, currentUser, tutors} = (state) => state.user;
 export default userSlice.reducer;
