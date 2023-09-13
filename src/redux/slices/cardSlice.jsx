@@ -1,14 +1,15 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import questionAPI from "../../service/QuestionAPI";
+import cardAPI from "../../service/CardAPI";
 
 export const addCard = createAsyncThunk(
     "card/addCard",
     async (data, thunkAPI) => {
         try {
-            const response = await questionAPI.add(data);
-            console.log("Response add question: " + JSON.stringify(response));
+            const response = await cardAPI.add(data);
+            console.log("Response add card: " + JSON.stringify(response));
             return response.json();
         } catch (error) {
+            console.log(error);
             return thunkAPI.rejectWithValue({ error: "An error occurred" });
         }
     }

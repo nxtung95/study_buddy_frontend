@@ -195,7 +195,7 @@ const Subject = ({ subject }) => {
       return;
     }
 
-    const question = {
+    const card = {
       "tutorId": tutor,
       "subjectId": subject.id,
       "title": cardTitle,
@@ -207,16 +207,17 @@ const Subject = ({ subject }) => {
         "fileName": fileSelectedList[i].fileName,
         "data": fileSelectedList[i].data
       }
-      question["files"].push(file);
+      card["files"].push(file);
     }
 
-    dispatch(addCard(question))
+    dispatch(addCard(card))
         .unwrap()
         .then((result) => {
           if (commonUtility.isSuccess(result.code)) {
-            dispatch(addUserSubjectQuestion({"subjectId": subject.id, "card": result.card}));
+            dispatch(addUserSubjectQuestion(result.card));
             setAddCardFail(false);
-            clearDataCardForm();
+            closeAddQuestionDialog();
+            // clearDataCardForm();
           } else {
             setAddCardFail(true);
           }
@@ -276,7 +277,7 @@ const Subject = ({ subject }) => {
                 Edit subject
               </DialogContentText>
 
-              <Stack sx={{ width: '100%' }} spacing={2} visibility={editSubjectFail ? 'visible' : 'hidden'}>
+              <Stack sx={{ mt: 2, minWidth: 550 }} spacing={2} visibility={editSubjectFail ? 'visible' : 'hidden'}>
                 <Alert severity="error">
                   <AlertTitle>Error</AlertTitle>
                   <strong>{desc}</strong>
@@ -340,14 +341,14 @@ const Subject = ({ subject }) => {
         <h3 style={styles.addCardText}>Add card</h3>
       </div>
       {openQuestionForm && (
-          <Dialog open={openQuestionForm} onClose={closeAddQuestionDialog} fullWidth={true}>
+          <Dialog open={openQuestionForm} onClose={closeAddQuestionDialog} fullWidth>
             <DialogTitle>Card</DialogTitle>
             <DialogContent>
               <DialogContentText>
                 Add card
               </DialogContentText>
 
-              <Stack sx={{ width: '100%' }} spacing={2} visibility={addCardFail ? 'visible' : 'hidden'}>
+              <Stack sx={{ minWidth: 500 }} spacing={2} visibility={addCardFail ? 'visible' : 'hidden'}>
                 <Alert severity="error">
                   <AlertTitle>Error</AlertTitle>
                   <strong>{descAddCard}</strong>
@@ -367,7 +368,7 @@ const Subject = ({ subject }) => {
                   onSubmit={handleSubmitAddCard}
               >
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sx={{ mt: 2, minWidth: 500 }}>
+                  <Grid item xs={12}>
                     <TextField
                         required
                         fullWidth
@@ -404,10 +405,10 @@ const Subject = ({ subject }) => {
                       <FormHelperText disabled={!!formCardErrors['tutor']}>{formCardErrors['tutor'] ? formCardErrors['tutor'].message : ''}</FormHelperText>
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sx={{ mt: 2, minWidth: 500 }}>
+                  <Grid item xs={12}>
                     <TextareaAutosize
                         minRows={15}
-                        style={{width: "100%"}}
+                        style={{width: "500px"}}
                         placeholder="Enter input text question"
                         onChange={handleInputTextChange}>
                     </TextareaAutosize>

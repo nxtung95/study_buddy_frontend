@@ -1,7 +1,7 @@
 import API_URL from '../const/Constant'
 import authService from "./AuthService";
 
-const questionAPI = {
+const cardAPI = {
     add(data) {
         return fetch(API_URL + "/app/questions/add", {
             method: "POST",
@@ -34,4 +34,4 @@ const questionAPI = {
     //     });
     // },
 }
-export default questionAPI;
+export default cardAPI;

@@ -77,10 +77,12 @@ const userSlice = createSlice({
     },
 
     addUserSubjectQuestion: (state, action) => {
-      const data = action.payload;
+      const card = action.payload;
       for (let i = 0; i < state.currentUser.subjects.length; i++) {
-        if (state.currentUser.subjects[i].id === data.subjectId) {
-          state.currentUser.subjects[i].unshift(data.card);
+        const subject = state.currentUser.subjects[i];
+        if (subject.id === card.subjectId) {
+          subject.questions.unshift(card);
+          break;
         }
       }
     },
