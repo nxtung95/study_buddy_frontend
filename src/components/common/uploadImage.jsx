@@ -65,25 +65,27 @@ const styles = theme => ({
 class ImageUploadCard extends React.Component {
     state = {
         mainState: "initial", // initial, uploaded
-        selectedFileList: []
+        selectedFileList: [],
+        fileName: ""
     };
 
     handleUploadClick = event => {
-        console.log();
         var file = event.target.files[0];
-        const reader = new FileReader();
-        var url = reader.readAsDataURL(file);
+        console.log(file);
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
 
-        reader.onloadend = function(e) {
-            const selectedFileList = [...this.state.selectedFileList, {"file": file, "data": [reader.result]}];
+        reader.onloadend = (e) => {
+            const selectedFiles = [...this.state.selectedFileList, {"fileName": this.state.fileName, "data": reader.result}];
+            console.log(selectedFiles);
             this.setState({
-                selectedFileList: selectedFileList
+                selectedFileList: selectedFiles
             });
-            this.props.setFileSelectedList(selectedFileList);
-            console.log("Image URL: " + url);
-        }.bind(this);
+            this.props.setFileSelectedList(selectedFiles);
+        }
         this.setState({
             mainState: "uploaded",
+            fileName: file.name
         });
     };
 
@@ -131,11 +133,12 @@ class ImageUploadCard extends React.Component {
                             <AddPhotoAlternateIcon />
                         </Fab>
                     </label>
-                    <CardActionArea>
+                    <CardActionArea style={{width: "50%"}}>
                         {
                             this.state.selectedFileList.map((selectedFile, index) => {
                                 return <img
-                                    width="25%"
+                                    alt=""
+                                    width="50%"
                                     className={classes.media}
                                     src={selectedFile.data}
                                     key={index}
@@ -157,8 +160,8 @@ class ImageUploadCard extends React.Component {
                 <div className={classes.root}>
                     <Card className="Input Image">
                         {
-                            (this.state.mainState == "initial" && this.renderInitialState()) ||
-                            (this.state.mainState == "uploaded" && this.renderUploadedState())
+                            (this.state.mainState === "initial" && this.renderInitialState()) ||
+                            (this.state.mainState === "uploaded" && this.renderUploadedState())
                         }
                     </Card>
                 </div>

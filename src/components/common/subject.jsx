@@ -5,9 +5,8 @@ import Card from "./card";
 import IconButton from "@mui/material/IconButton";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import {deleteUserSubject, editUserSubject, findTutor} from "../../redux/slices/userSlice";
+import {addUserSubjectQuestion, deleteUserSubject, editUserSubject, findTutor} from "../../redux/slices/userSlice";
 import {deleteSubject, editSubject} from "../../redux/slices/subjectSlice";
 import commonUtility from "../../utility/CommonUtility";
 import {
@@ -20,18 +19,18 @@ import {
   DialogTitle,
   FormControl,
   FormHelperText,
-  TextField,
-  Input,
-  TextareaAutosize
+  MenuItem,
+  Select,
+  TextareaAutosize,
+  TextField
 } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Grid from "@mui/material/Grid";
 import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
 import ImageUploadCard from "./uploadImage";
-import {addQuestion} from "../../redux/slices/questionSlice";
+import {addCard} from "../../redux/slices/cardSlice";
 
 const Subject = ({ subject }) => {
   const dispatch = useDispatch();
@@ -45,11 +44,12 @@ const Subject = ({ subject }) => {
   const desc = useSelector(state => state.subject.desc);
   const tutors = useSelector(state => state.user.tutors);
   const [tutor, setTutor] = useState("");
+  const [cardTitle, setCardTitle] = useState("");
   const [fileSelectedList, setFileSelectedList] = useState([]);
   const [inputText, setInputText] = useState("");
   const [formCardErrors, setFormCardErrors] = useState({});
-  const isLoadingCard = useSelector(state => state.question.isLoading);
-  const descAddCard = useSelector(state => state.question.desc);
+  const isLoadingCard = useSelector(state => state.card.isLoading);
+  const descAddCard = useSelector(state => state.card.desc);
   const [addCardFail, setAddCardFail] = useState(false);
 
   const handleMoreClick = (event) => {
@@ -96,6 +96,7 @@ const Subject = ({ subject }) => {
   }
 
   const closeAddQuestionDialog = () => {
+    clearDataCardForm();
     setOpenQuestionForm(false);
   };
 
@@ -154,6 +155,13 @@ const Subject = ({ subject }) => {
   const clearErrorAddCard = () => {
     setFormCardErrors({});
   }
+  
+  const clearDataCardForm = () => {
+    setCardTitle("")
+    setTutor("");
+    setFileSelectedList([]);
+    setInputText("");
+  }
 
   const handleTutorChange = (e) => {
     setTutor(e.target.value);
@@ -161,7 +169,7 @@ const Subject = ({ subject }) => {
   }
 
   const handleChangeTitle = (e) => {
-    setTitle(e.target.value);
+    setCardTitle(e.target.value);
     clearErrorAddCard();
   }
 
@@ -173,18 +181,8 @@ const Subject = ({ subject }) => {
   const handleSubmitAddCard = (e) => {
     e.preventDefault();
 
-    const question = {
-      "tutorId": tutor,
-      "subjectId": subject.id,
-      "title": title,
-      "inputText": inputText,
-      "files": fileSelectedList
-    };
-
-    console.log("Add question: " + JSON.stringify(question));
-
     //Validate
-    if (commonUtility.checkNullOrEmpty(title)) {
+    if (commonUtility.checkNullOrEmpty(cardTitle)) {
       setFormCardErrors({...formCardErrors, title: {message : 'Please enter your question title'}});
       return;
     }
@@ -197,19 +195,35 @@ const Subject = ({ subject }) => {
       return;
     }
 
-    dispatch(addQuestion(question))
+    const question = {
+      "tutorId": tutor,
+      "subjectId": subject.id,
+      "title": cardTitle,
+      "inputText": inputText,
+      "files": []
+    };
+    for (let i = 0; i < fileSelectedList.length; i++) {
+      const file = {
+        "fileName": fileSelectedList[i].fileName,
+        "data": fileSelectedList[i].data
+      }
+      question["files"].push(file);
+    }
+
+    dispatch(addCard(question))
         .unwrap()
         .then((result) => {
           if (commonUtility.isSuccess(result.code)) {
-            // dispatch(editUserSubject(result.subject));
-            setFormCardErrors(false);
+            dispatch(addUserSubjectQuestion({"subjectId": subject.id, "card": result.card}));
+            setAddCardFail(false);
+            clearDataCardForm();
           } else {
-            setFormCardErrors(true);
+            setAddCardFail(true);
           }
         })
         .catch(() => {
           console.log("Add card has failed");
-          setFormCardErrors(true);
+          setAddCardFail(true);
         });
 
   }
@@ -315,7 +329,6 @@ const Subject = ({ subject }) => {
       <div style={styles.cardList}>
         {
           subject.questions && subject.questions.map((question, index) => {
-            console.log("Question data: ", question); // Add this console.log statement
             return <Card key={index} question={question} />;
           })
         }
@@ -345,8 +358,9 @@ const Subject = ({ subject }) => {
                   noValidate
                   component="form"
                   sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
                     m: 'auto',
                     width: 'fit-content',
                   }}
@@ -363,26 +377,26 @@ const Subject = ({ subject }) => {
                         autoComplete="title"
                         onChange={(e) => handleChangeTitle(e)}
                         disabled={isLoadingCard}
-                        error={!!formCardErrors['title']}
+                        error={formCardErrors['title']}
                         helperText={formCardErrors['title'] ? formCardErrors['title'].message : ''}
                     />
                   </Grid>
-                  <Grid item xs={12} sx={{ mt: 2, minWidth: 500 }}>
+                  <Grid item xs={12}>
                     <FormControl fullWidth error={!!formCardErrors['tutor']} >
                       <InputLabel id="tutor-label">Tutor</InputLabel>
                       <Select
                           labelId="tutor-label"
                           id="tutor"
-                          label="Select tutor"
                           name="tutor"
+                          value={tutor}
+                          label="Tutor"
                           onChange={(e) => handleTutorChange(e)}
                           disabled={isLoadingCard}
                       >
-                        <MenuItem value=''>Select tutor</MenuItem>
                         {
                             tutors && (
                                 tutors.map((tutor, index) => {
-                                    return <MenuItem key={index} value={tutor.id}>{tutor.firstName + " " + tutor.lastName}</MenuItem>
+                                    return <MenuItem style={{display: "flex"}} key={index} value={tutor.id}>{tutor.firstName + " " + tutor.lastName}</MenuItem>
                                 })
                             )
                         }
@@ -391,8 +405,13 @@ const Subject = ({ subject }) => {
                     </FormControl>
                   </Grid>
                   <Grid item xs={12} sx={{ mt: 2, minWidth: 500 }}>
-                    <TextareaAutosize minRows={15} placeholder="Enter input text question" onChange={handleInputTextChange}></TextareaAutosize>
-                    <FormHelperText disabled={!!formCardErrors['inputText']} sx={{ color: "#ffebee" }}>{formCardErrors['inputText'] ? formCardErrors['inputText'].message : ''}</FormHelperText>
+                    <TextareaAutosize
+                        minRows={15}
+                        style={{width: "100%"}}
+                        placeholder="Enter input text question"
+                        onChange={handleInputTextChange}>
+                    </TextareaAutosize>
+                    <FormHelperText disabled={!!formCardErrors['inputText']} style={{ color: "red" }}>{formCardErrors['inputText'] ? formCardErrors['inputText'].message : ''}</FormHelperText>
                   </Grid>
                   <Grid item xs={12} sx={{ mt: 2, mb: 5 }}>
                     <ImageUploadCard setFileSelectedList={setFileSelectedList}/>

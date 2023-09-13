@@ -9,7 +9,7 @@ const questionAPI = {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + authService.getAccessTokenHeader()
             },
-            body: JSON.stringify(data),
+            body: JSON.stringify(data)
         });
     },
 
