@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {fonts} from "../Styles/theme";
-import Card from "./card";
+import CardView from "./card";
 import IconButton from "@mui/material/IconButton";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import Menu from "@mui/material/Menu";
@@ -330,7 +330,7 @@ const Subject = ({ subject }) => {
       <div style={styles.cardList}>
         {
           subject.questions && subject.questions.map((question, index) => {
-            return <Card key={index} question={question} />;
+            return <CardView key={index} question={question} subject={subject} />;
           })
         }
       </div>

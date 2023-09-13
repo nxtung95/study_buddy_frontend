@@ -16,7 +16,6 @@ const Board = () => {
         <div style={styles.cardsContainer}>
           {
             subjects && subjects.map((subject, index) => {
-              console.log("Subject data:", subject); // Add this console.log statement
               return <Subject key={index} subject={subject} />;
             })
           }
