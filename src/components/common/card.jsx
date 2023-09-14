@@ -25,26 +25,31 @@ import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import ImageUploadCard from "./uploadImage";
 import {useDispatch, useSelector} from "react-redux";
 import commonUtility from "../../utility/CommonUtility";
-import {deleteCard, updateCard, viewCard} from "../../redux/slices/cardSlice";
+import {addAnswerCard, deleteCard, updateCard, viewCard} from "../../redux/slices/cardSlice";
 import {deleteUserSubjectQuestion} from "../../redux/slices/userSlice";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Comment from "../common/comment"
+import {addAnswer} from "../../redux/slices/answerSlice";
 
 const CardView = ({ question, subject }) => {
   const dispatch = useDispatch();
   const currentUser = useSelector(state => state.user.currentUser);
   const [isHovering, setIsHovering] = useState(false);
   const [openQuestionForm, setOpenQuestionForm] = useState(false);
-  const [detailCard, setDetailCard] = useState({});
   const [inputText, setInputText] = useState("");
+  const [content, setContent] = useState("");
+  const [formAnswerErrors, setFormAnswerErrors] = useState({});
   const [formCardErrors, setFormCardErrors] = useState({});
   const [fileSelectedList, setFileSelectedList] = useState([]);
   const [isUpdateCard, setIsUpdateCard] = useState(false);
   const [updateCardFail, setUpdateCardFail] = useState(false);
   const [hideAnswer, setHideAnswer] = useState(true);
   const descUpdateCard = useSelector(state => state.card.desc);
+  const descAddAnswer = useSelector(state => state.answer.desc);
+  const detailCard = useSelector(state => state.card.detailCard);
+
 
   const handleMouseOver = () => {
     setIsHovering(true);
@@ -161,7 +166,7 @@ const CardView = ({ question, subject }) => {
         .unwrap()
         .then((result) => {
           if (commonUtility.isSuccess(result.code)) {
-            setDetailCard(result);
+            // setDetailCard(result);
             setFileSelectedList(result.images);
             setOpenQuestionForm(!openQuestionForm);
           } else {
@@ -260,6 +265,42 @@ const CardView = ({ question, subject }) => {
         });
   }
 
+  const handleAddAnswer = (e) => {
+    e.preventDefault();
+
+    //Validate
+    if (commonUtility.checkNullOrEmpty(content)) {
+      setFormAnswerErrors({...formAnswerErrors, answer: {message : 'Please enter your answer'}});
+      return;
+    }
+
+    const answer = {
+      "questionId": question.id,
+      "tutorId": question.tutorId,
+      "content": content
+    };
+
+    dispatch(addAnswer(answer))
+        .unwrap()
+        .then((result) => {
+          if (commonUtility.isSuccess(result.code)) {
+            dispatch(addAnswerCard(result.answer))
+            setUpdateCardFail(false);
+          } else {
+            setUpdateCardFail(true);
+          }
+        })
+        .catch(() => {
+          console.log("Add answer has failed");
+          setUpdateCardFail(true);
+        });
+  }
+
+  const handleContentTextChange = (e) => {
+    setFormAnswerErrors({});
+    setContent(e.target.value);
+  }
+
   return (
       <React.Fragment>
         <div
@@ -343,14 +384,18 @@ const CardView = ({ question, subject }) => {
                     </Box>
                   </Grid>
 
-                  <Grid item xs={12}>
-                    <Stack sx={{ minWidth: 500 }} spacing={2} visibility={isUpdateCard ? 'visible' : 'hidden'}>
-                      <Alert severity={updateCardFail ? 'error' : 'success'}>
-                        <AlertTitle>{updateCardFail ? 'Success' : 'Eror'}</AlertTitle>
-                        <strong>{descUpdateCard}</strong>
-                      </Alert>
-                    </Stack>
-                  </Grid>
+                  {
+                    commonUtility.checkRoleUser(currentUser.role) && (
+                        <Grid item xs={12}>
+                          <Stack sx={{ minWidth: 500 }} spacing={2} visibility={isUpdateCard ? 'visible' : 'hidden'}>
+                            <Alert severity={updateCardFail ? 'error' : 'success'}>
+                              <AlertTitle>{updateCardFail ? 'Success' : 'Eror'}</AlertTitle>
+                              <strong>{descUpdateCard}</strong>
+                            </Alert>
+                          </Stack>
+                        </Grid>
+                    )
+                  }
 
                   <Grid item xs={1}>
                     <DensitySmallOutlinedIcon fontSize="large"></DensitySmallOutlinedIcon>
@@ -403,10 +448,16 @@ const CardView = ({ question, subject }) => {
                       <FormHelperText disabled={!!formCardErrors['inputText']} style={{ color: "red" }}>{formCardErrors['inputText'] ? formCardErrors['inputText'].message : ''}</FormHelperText>
                   </Grid>
 
-                  <Grid item xs={1}></Grid>
-                  <Grid item xs={11}>
-                    <ImageUploadCard setFileSelectedList={setFileSelectedList} fileSelectedList={fileSelectedList}/>
-                  </Grid>
+                  {
+                    commonUtility.checkRoleUser(currentUser.role) && (
+                        <React.Fragment>
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={11}>
+                            <ImageUploadCard setFileSelectedList={setFileSelectedList} fileSelectedList={fileSelectedList}/>
+                          </Grid>
+                        </React.Fragment>
+                    )
+                  }
 
                   <Grid item xs={1}>
                     <ChatOutlinedIcon fontSize="large"></ChatOutlinedIcon>
@@ -427,13 +478,27 @@ const CardView = ({ question, subject }) => {
                     </Button>
                   </Grid>
 
-
                   {
-                    hideAnswer && (
+                    commonUtility.checkRoleTutor(currentUser.role) && (
                         <React.Fragment>
                           <Grid item xs={1}></Grid>
-                          <Grid item xs={11}>
-                            <Comment answers={detailCard.answers}/>
+                          <Grid item xs={2}>
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                onClick={handleAddAnswer}
+                            >
+                              Add answer
+                            </Button>
+                          </Grid>
+                          <Grid item xs={9}>
+                            <Stack sx={{ minWidth: 500, margin: 0, padding: 0 }} visibility={updateCardFail ? 'visible' : 'hidden'}>
+                              <Alert severity={'error'}>
+                                <AlertTitle>Eror</AlertTitle>
+                                <strong>{descAddAnswer}</strong>
+                              </Alert>
+                            </Stack>
                           </Grid>
                         </React.Fragment>
                     )
@@ -445,12 +510,24 @@ const CardView = ({ question, subject }) => {
                           <Grid item xs={1}></Grid>
                           <Grid item xs={11}>
                             <textarea
-                                rows={3}
+                                rows={10}
                                 style={{minWidth: "700px"}}
                                 placeholder="Write a answer..."
-                                // onChange={handleInputTextChange}
+                                onChange={handleContentTextChange}
                             >
                             </textarea >
+                            <FormHelperText disabled={!!formAnswerErrors['answer']} style={{ color: "red" }}>{formAnswerErrors['answer'] ? formAnswerErrors['answer'].message : ''}</FormHelperText>
+                          </Grid>
+                        </React.Fragment>
+                    )
+                  }
+
+                  {
+                    hideAnswer && (
+                        <React.Fragment>
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={11}>
+                            <Comment answers={detailCard.answers}/>
                           </Grid>
                         </React.Fragment>
                     )

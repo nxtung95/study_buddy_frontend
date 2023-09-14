@@ -6,7 +6,7 @@ import {useSelector} from "react-redux";
 const imgLink =
     "https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260";
 
-const Comment = ({answers, isHideAnswer}) => {
+const Comment = ({answers}) => {
     return (
         <div className="App">
             {

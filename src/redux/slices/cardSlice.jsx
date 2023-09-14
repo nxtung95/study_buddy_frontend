@@ -58,10 +58,16 @@ const cardSlice = createSlice({
     name: "card",
     initialState: {
         isLoading: false,
+        isLoadingViewCard: false,
         code: "",
         desc: "",
+        detailCard: []
     },
-    reducers: {},
+    reducers: {
+        addAnswerCard: (state, action) => {
+            state.detailCard.answers.unshift(action.payload);
+        }
+    },
     extraReducers: (builder) => {
         builder.addCase(addCard.pending, (state) => {
             state.isLoading = true;
@@ -77,15 +83,18 @@ const cardSlice = createSlice({
         });
 
         builder.addCase(viewCard.pending, (state) => {
-            state.isLoading = true;
+            state.isLoadingViewCard = true;
         });
         builder.addCase(viewCard.fulfilled, (state, action) => {
-            state.isLoading = false;
+            state.isLoadingViewCard = false;
             state.desc = action.payload.desc;
             state.code = action.payload.code;
+            if (action.payload.code === '00') {
+                state.detailCard = action.payload;
+            }
         });
         builder.addCase(viewCard.rejected, (state, action) => {
-            state.isLoading = false;
+            state.isLoadingViewCard = false;
             state.desc = action.payload.error;
         });
 
@@ -116,6 +125,6 @@ const cardSlice = createSlice({
         });
     },
 });
-
-export const { isLoading, code, desc, cards} = (state) => state.card;
+export const { addAnswerCard } = cardSlice.actions;
+export const { isLoading, isLoadingViewCard, code, desc, detailCard} = (state) => state.card;
 export default cardSlice.reducer;
