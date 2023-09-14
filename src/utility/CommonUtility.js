@@ -22,6 +22,13 @@ const commonUtility = {
             return true;
         }
         return false;
+    },
+
+    checkRoleTutor(role) {
+        if (role !== null && role !== "" && role === "tutor") {
+            return true;
+        }
+        return false;
     }
 }
 

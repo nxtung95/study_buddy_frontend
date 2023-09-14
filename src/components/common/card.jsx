@@ -30,6 +30,7 @@ import {deleteUserSubjectQuestion} from "../../redux/slices/userSlice";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
+import Comment from "../common/comment"
 
 const CardView = ({ question, subject }) => {
   const dispatch = useDispatch();
@@ -42,6 +43,7 @@ const CardView = ({ question, subject }) => {
   const [fileSelectedList, setFileSelectedList] = useState([]);
   const [isUpdateCard, setIsUpdateCard] = useState(false);
   const [updateCardFail, setUpdateCardFail] = useState(false);
+  const [hideAnswer, setHideAnswer] = useState(true);
   const descUpdateCard = useSelector(state => state.card.desc);
 
   const handleMouseOver = () => {
@@ -351,31 +353,37 @@ const CardView = ({ question, subject }) => {
                   <Grid item xs={2}>
                     <div style={viewStyles.description}>Description</div>
                   </Grid>
-                  <Grid item xs={2} alignItems="center">
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2, height: 50, borderRadius: "5px" }}
-                        // disabled={isLoading}
-                        onClick={handleUpdateCard}
-                    >
-                      Update
-                    </Button>
-                  </Grid>
-                  <Grid item xs={2} alignItems="center">
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2, height: 50, borderRadius: "5px" }}
-                        onClick={handleDeleteCard}
-                        // disabled={isLoading}
-                    >
-                      Delete
-                    </Button>
-                  </Grid>
-                  <Grid item xs={5}></Grid>
+                  {
+                    commonUtility.checkRoleUser(currentUser.role) && (
+                        <React.Fragment>
+                          <Grid item xs={2} alignItems="center">
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2, height: 50, borderRadius: "5px" }}
+                                // disabled={isLoading}
+                                onClick={handleUpdateCard}
+                            >
+                              Update
+                            </Button>
+                          </Grid>
+                          <Grid item xs={2} alignItems="center">
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2, height: 50, borderRadius: "5px" }}
+                                onClick={handleDeleteCard}
+                                // disabled={isLoading}
+                            >
+                              Delete
+                            </Button>
+                          </Grid>
+                        </React.Fragment>
+                    )
+                  }
+                  <Grid item xs={commonUtility.checkRoleUser(currentUser.role) ? 5 : 9}></Grid>
 
                   <Grid item xs={1}></Grid>
                   <Grid item xs={11}>
@@ -384,6 +392,7 @@ const CardView = ({ question, subject }) => {
                           style={{minWidth: "700px"}}
                           defaultValue={detailCard.inputText}
                           onChange={(e) => handleInputTextChange(e)}
+                          disabled={commonUtility.checkRoleUser(currentUser.role) ? false : true}
                       >
                       </textarea >
                       <FormHelperText disabled={!!formCardErrors['inputText']} style={{ color: "red" }}>{formCardErrors['inputText'] ? formCardErrors['inputText'].message : ''}</FormHelperText>
@@ -407,21 +416,40 @@ const CardView = ({ question, subject }) => {
                         variant="contained"
                         // sx={{ mt: 3, mb: 2 }}
                         // disabled={isLoading}
+                        onClick={() => setHideAnswer(!hideAnswer)}
                     >
                       Hide Details
                     </Button>
                   </Grid>
 
-                  <Grid item xs={1}></Grid>
-                  <Grid item xs={11}>
-                    <textarea
-                        rows={3}
-                        style={{minWidth: "700px"}}
-                        placeholder="Write a answer..."
-                        // onChange={handleInputTextChange}
-                    >
-                      </textarea >
-                  </Grid>
+
+                  {
+                    hideAnswer && (
+                        <React.Fragment>
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={11}>
+                            <Comment answers={detailCard.answers}/>
+                          </Grid>
+                        </React.Fragment>
+                    )
+                  }
+
+                  {
+                    commonUtility.checkRoleTutor(currentUser.role) && (
+                        <React.Fragment>
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={11}>
+                            <textarea
+                                rows={3}
+                                style={{minWidth: "700px"}}
+                                placeholder="Write a answer..."
+                                // onChange={handleInputTextChange}
+                            >
+                            </textarea >
+                          </Grid>
+                        </React.Fragment>
+                    )
+                  }
 
                   <Grid item xs={1}>
                     <PersonOutlineOutlinedIcon fontSize="large"></PersonOutlineOutlinedIcon>
