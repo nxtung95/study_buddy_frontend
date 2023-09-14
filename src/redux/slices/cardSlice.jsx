@@ -54,6 +54,19 @@ export const deleteCard = createAsyncThunk(
     }
 );
 
+export const updateContact = createAsyncThunk(
+    "card/updateContact",
+    async (data, thunkAPI) => {
+        try {
+            const response = await cardAPI.updateContact(data);
+            return response.json();
+        } catch (error) {
+            console.log(error);
+            return thunkAPI.rejectWithValue({ error: "An error occurred" });
+        }
+    }
+);
+
 const cardSlice = createSlice({
     name: "card",
     initialState: {
@@ -122,6 +135,12 @@ const cardSlice = createSlice({
         builder.addCase(deleteCard.rejected, (state, action) => {
             state.isLoading = false;
             state.desc = action.payload.error;
+        });
+
+        builder.addCase(updateContact.fulfilled, (state, action) => {
+            state.isLoading = false;
+            state.desc = action.payload.desc;
+            state.code = action.payload.code;
         });
     },
 });

@@ -45,5 +45,16 @@ const cardAPI = {
             body: JSON.stringify(data)
         });
     },
+
+    updateContact(data) {
+        return fetch(API_URL + "/app/questions/updateContact", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + authService.getAccessTokenHeader()
+            },
+            body: JSON.stringify(data)
+        });
+    },
 }
 export default cardAPI;

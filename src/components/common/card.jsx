@@ -8,9 +8,9 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
-  FormHelperText,
-  Grid,
+  DialogTitle, FormControlLabel, FormGroup,
+  FormHelperText, FormLabel,
+  Grid, Switch,
   Typography
 } from "@mui/material";
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
@@ -25,13 +25,14 @@ import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import ImageUploadCard from "./uploadImage";
 import {useDispatch, useSelector} from "react-redux";
 import commonUtility from "../../utility/CommonUtility";
-import {addAnswerCard, deleteCard, updateCard, viewCard} from "../../redux/slices/cardSlice";
+import {addAnswerCard, deleteCard, updateCard, updateContact, viewCard} from "../../redux/slices/cardSlice";
 import {deleteUserSubjectQuestion} from "../../redux/slices/userSlice";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Comment from "../common/comment"
 import {addAnswer} from "../../redux/slices/answerSlice";
+import FormControl from "@mui/material/FormControl";
 
 const CardView = ({ question, subject }) => {
   const dispatch = useDispatch();
@@ -44,12 +45,18 @@ const CardView = ({ question, subject }) => {
   const [formCardErrors, setFormCardErrors] = useState({});
   const [fileSelectedList, setFileSelectedList] = useState([]);
   const [isUpdateCard, setIsUpdateCard] = useState(false);
+  const [isUpdateContact, setIsUpdateContact] = useState(false);
   const [updateCardFail, setUpdateCardFail] = useState(false);
+  const [updateContactFail, setUpdateContactFail] = useState(false);
   const [hideAnswer, setHideAnswer] = useState(true);
   const descUpdateCard = useSelector(state => state.card.desc);
+  const descUpdateContact = useSelector(state => state.card.desc);
   const descAddAnswer = useSelector(state => state.answer.desc);
   const detailCard = useSelector(state => state.card.detailCard);
-
+  const [isAllowChatMessage, setIsAllowChatMessage] = useState(true);
+  const [isAllowVoiceCall, setIsAllowVoiceCall] = useState(true);
+  const [isAllowVideoCall, setIsAllowVideoCall] = useState(true);
+  const [changeStatus, setChangeStatus] = useState(question.status);
 
   const handleMouseOver = () => {
     setIsHovering(true);
@@ -301,6 +308,48 @@ const CardView = ({ question, subject }) => {
     setContent(e.target.value);
   }
 
+  const handleChangeAllowChat = (e) => {
+    setIsAllowChatMessage(e.target.checked);
+  }
+
+  const handleChangeVideoCall = (e) => {
+    setIsAllowVideoCall(e.target.checked);
+  }
+
+  const handleChangeVoiceCall = (e) => {
+    setIsAllowVoiceCall(e.target.checked);
+  }
+
+  const handleChangeStatus = (e) => {
+    setChangeStatus(e.target.checked ? 1 : 0);
+  }
+
+  const handleApplyContact = (e) => {
+    e.preventDefault();
+
+    const data = {
+      'isAllowChat': isAllowChatMessage ? 1 : 0,
+      'isAllowVideoCall': isAllowVideoCall ? 1 : 0,
+      'isAllowVoiceCall': isAllowVoiceCall ? 1 : 0
+    }
+
+    dispatch(updateContact(data))
+        .unwrap()
+        .then((result) => {
+          if (commonUtility.isSuccess(result.code)) {
+            setUpdateContactFail(false);
+          } else {
+            setUpdateContactFail(true);
+          }
+          setIsUpdateContact(true);
+        })
+        .catch(() => {
+          console.log("Update contact has failed");
+          setUpdateContactFail(true);
+          setIsUpdateContact(true);
+        });
+  }
+
   return (
       <React.Fragment>
         <div
@@ -335,11 +384,19 @@ const CardView = ({ question, subject }) => {
                   <Grid item xs={1}>
                     <ArticleOutlinedIcon fontSize="large"></ArticleOutlinedIcon>
                   </Grid>
-                  <Grid item xs={11} >
+                  <Grid item xs={6} >
                     <Grid item xs={12}>
                       <div style={viewStyles.cardTitle}>{question.title}</div>
                     </Grid>
                     <Grid item xs={12}><Typography style={viewStyles.subCardTitle}>in list {subject.title}</Typography></Grid>
+                  </Grid>
+                  <Grid item xs={5}>
+                    <FormControlLabel
+                        control={
+                          <Switch size="medium" checked={changeStatus === 1 ? true : false} onChange={handleChangeStatus} />
+                        }
+                        label="Resolve question"
+                    />
                   </Grid>
                 </Grid>
               </DialogTitle>
@@ -549,12 +606,82 @@ const CardView = ({ question, subject }) => {
                     )
                   }
 
-                  <Grid item xs={1}></Grid>
-                  <Grid item xs={11}>
-                    <MicIcon fontSize="large" style={viewStyles.connectIcon}></MicIcon>
-                    <VideocamIcon fontSize="large" style={viewStyles.connectIcon}></VideocamIcon>
-                    <ChatIcon fontSize="large" style={viewStyles.connectIcon}></ChatIcon>
-                  </Grid>
+                  {
+                    commonUtility.checkRoleTutor(currentUser.role) && (
+                        <React.Fragment>
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={11}>
+                            <FormControl component="fieldset" variant="standard">
+                              <FormLabel component="legend">Allow contact</FormLabel>
+                              <FormGroup>
+                                <Box sx={{ display: 'inline-flex', justifyContent: 'flex-start', alignItems: 'flex-start', gap: "10px" }}>
+                                  <FormControlLabel
+                                      control={
+                                        <Switch checked={isAllowChatMessage} onChange={handleChangeAllowChat} name="isAllowChatMessage" />
+                                      }
+                                      label="Allow chat message"
+                                  />
+                                  <FormControlLabel
+                                      control={
+                                        <Switch checked={isAllowVoiceCall} onChange={handleChangeVoiceCall} name="isAllowVoiceCall" />
+                                      }
+                                      label="Allow voice call"
+                                  />
+                                  <FormControlLabel
+                                      control={
+                                        <Switch checked={isAllowVideoCall} onChange={handleChangeVideoCall} name="isAllowVideoCall" />
+                                      }
+                                      label="Allow video call"
+                                  />
+                                  <Button
+                                      type="submit"
+                                      variant="contained"
+                                      onClick={handleApplyContact}
+                                  >
+                                    Apply
+                                  </Button>
+                                </Box>
+                              </FormGroup>
+                            </FormControl>
+                          </Grid>
+
+                          {
+                            isUpdateContact && (
+                                <React.Fragment>
+                                  <Grid item xs={1}></Grid>
+                                  <Grid item xs={11}>
+                                    <Stack sx={{ minWidth: 500 }} spacing={2}>
+                                      <Alert severity={updateContactFail ? 'error' : 'success'}>
+                                        <AlertTitle>{updateContactFail ? 'Success' : 'Eror'}</AlertTitle>
+                                        <strong>{descUpdateContact}</strong>
+                                      </Alert>
+                                    </Stack>
+                                  </Grid>
+                                </React.Fragment>
+                            )
+                          }
+
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={11}>
+                            {
+                              isAllowChatMessage && (
+                                  <ChatIcon fontSize="large" style={viewStyles.connectIcon}></ChatIcon>
+                              )
+                            }
+                            {
+                              isAllowVideoCall && (
+                                  <VideocamIcon fontSize="large" style={viewStyles.connectIcon}></VideocamIcon>
+                              )
+                            }
+                            {
+                              isAllowVoiceCall && (
+                                  <MicIcon fontSize="large" style={viewStyles.connectIcon}></MicIcon>
+                              )
+                            }
+                          </Grid>
+                        </React.Fragment>
+                    )
+                  }
                 </Grid>
               </DialogContent>
               <DialogActions style={{backgroundColor: "#f0f1f3"}}>
