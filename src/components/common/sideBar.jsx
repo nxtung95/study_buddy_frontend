@@ -88,9 +88,11 @@ const Sidebar = () => {
             <button style={styles.button}>Tutors</button>
             <button style={styles.button}>Board Settings</button>
             <div style={styles.line}></div>
-            <button style={styles.subjectButton} onClick={handleAddSubjectClick} visibility={commonUtility.checkRoleUser(currentUser.role) ? 'visible' : 'hidden'}>
-              Add Subject
-            </button>
+            {commonUtility.checkRoleUser(currentUser.role) && (
+                <button style={styles.subjectButton} onClick={handleAddSubjectClick}>
+                  Add Subject
+                </button>
+            )}
             {openSubjectForm && (
                 <Dialog open={openSubjectForm} onClose={handleClose} fullWidth={true}>
                   <DialogTitle>Subject</DialogTitle>
