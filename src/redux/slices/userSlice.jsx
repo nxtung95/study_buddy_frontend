@@ -86,6 +86,20 @@ const userSlice = createSlice({
         }
       }
     },
+
+    deleteUserSubjectQuestion: (state, action) => {
+      const card = action.payload;
+      for (let i = 0; i < state.currentUser.subjects.length; i++) {
+        const subject = state.currentUser.subjects[i];
+        if (subject.id === card.subjectId) {
+          const updateQuestions = subject.questions.filter(
+              (question) => question.id !== card.id
+          );
+          subject.questions = updateQuestions;
+          break;
+        }
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(register.pending, (state) => {
@@ -133,6 +147,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { addUserSubject, editUserSubject, deleteUserSubject, addUserSubjectQuestion } = userSlice.actions;
+export const { addUserSubject, editUserSubject, deleteUserSubject, addUserSubjectQuestion, deleteUserSubjectQuestion } = userSlice.actions;
 export const { isLoading, code, message, currentUser, tutors} = (state) => state.user;
 export default userSlice.reducer;

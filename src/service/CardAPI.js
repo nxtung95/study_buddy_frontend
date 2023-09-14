@@ -13,25 +13,37 @@ const cardAPI = {
         });
     },
 
-    // edit(data) {
-    //     return fetch(API_URL + "/app/subjects/edit", {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "Authorization": "Bearer " + authService.getAccessTokenHeader()
-    //         },
-    //         body: JSON.stringify(data),
-    //     });
-    // },
-    //
-    // delete(data) {
-    //     return fetch(API_URL + "/app/subjects/delete/" + data, {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "Authorization": "Bearer " + authService.getAccessTokenHeader()
-    //         },
-    //     });
-    // },
+    view(data) {
+        return fetch(API_URL + "/app/questions/view?subjectId=" + data.subjectId + "&questionId=" + data.questionId, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + authService.getAccessTokenHeader()
+            }
+        });
+    },
+
+    update(data) {
+        return fetch(API_URL + "/app/questions/update", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + authService.getAccessTokenHeader()
+            },
+            body: JSON.stringify(data)
+        });
+    },
+
+
+    delete(data) {
+        return fetch(API_URL + "/app/questions/delete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + authService.getAccessTokenHeader()
+            },
+            body: JSON.stringify(data)
+        });
+    },
 }
 export default cardAPI;

@@ -415,7 +415,7 @@ const Subject = ({ subject }) => {
                     <FormHelperText disabled={!!formCardErrors['inputText']} style={{ color: "red" }}>{formCardErrors['inputText'] ? formCardErrors['inputText'].message : ''}</FormHelperText>
                   </Grid>
                   <Grid item xs={12} sx={{ mt: 2, mb: 5 }}>
-                    <ImageUploadCard setFileSelectedList={setFileSelectedList}/>
+                    <ImageUploadCard setFileSelectedList={setFileSelectedList} fileSelectedList={[]}/>
                   </Grid>
                 </Grid>
                 <Button

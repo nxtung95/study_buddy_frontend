@@ -18,7 +18,7 @@ import {withStyles} from "@material-ui/core/styles";
 
 const styles = theme => ({
     root: {
-        backgroundColor: theme.palette.background.paper,
+        // backgroundColor: theme.palette.background.paper,
         width: 500,
         display: "flex",
         justifyContent: "flex-start",
@@ -65,7 +65,7 @@ const styles = theme => ({
 class ImageUploadCard extends React.Component {
     state = {
         mainState: "initial", // initial, uploaded
-        selectedFileList: [],
+        selectedFileList: this.props.fileSelectedList,
         fileName: ""
     };
 
@@ -108,6 +108,19 @@ class ImageUploadCard extends React.Component {
                                 <AddPhotoAlternateIcon />
                             </Fab>
                         </label>
+                        <CardActionArea style={{width: "50%"}}>
+                            {
+                                this.state.selectedFileList && this.state.selectedFileList.map((selectedFile, index) => {
+                                    return <img
+                                        alt=""
+                                        width="50%"
+                                        className={classes.media}
+                                        src={selectedFile.data.includes('data:image/jpeg') ? 'data:image/jpeg;base64,' + selectedFile.data : selectedFile.data}
+                                        key={index}
+                                    />
+                                })
+                            }
+                        </CardActionArea>
                     </Grid>
                 </CardContent>
             </React.Fragment>
@@ -135,12 +148,12 @@ class ImageUploadCard extends React.Component {
                     </label>
                     <CardActionArea style={{width: "50%"}}>
                         {
-                            this.state.selectedFileList.map((selectedFile, index) => {
+                            this.state.selectedFileList && this.state.selectedFileList.map((selectedFile, index) => {
                                 return <img
                                     alt=""
                                     width="50%"
                                     className={classes.media}
-                                    src={selectedFile.data}
+                                    src={selectedFile.data.includes('data:image/jpeg') ? 'data:image/jpeg;base64,' + selectedFile.data : selectedFile.data}
                                     key={index}
                                 />
                             })
@@ -156,7 +169,7 @@ class ImageUploadCard extends React.Component {
 
         return (
             <React.Fragment>
-                <div className={classes.title}>Upload image</div>
+                {/*<div className={classes.title}>Upload image</div>*/}
                 <div className={classes.root}>
                     <Card className="Input Image">
                         {
