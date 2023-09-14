@@ -145,6 +145,11 @@ const CardView = ({ question, subject }) => {
       fontSize: "20px",
       fontWeight: 300
     },
+    connectIcon: {
+      margin: "5px",
+      backgroundColor: "#FFF",
+      cursor: "pointer"
+    }
   }
 
   const openAddQuestionDialog = () => {
@@ -451,21 +456,27 @@ const CardView = ({ question, subject }) => {
                     )
                   }
 
-                  <Grid item xs={1}>
-                    <PersonOutlineOutlinedIcon fontSize="large"></PersonOutlineOutlinedIcon>
-                  </Grid>
-                  <Grid item xs={11}>
-                    <Grid item xs={12}>
-                      <div><b>Max Tan</b> solved the question <a href="#">view here</a></div>
-                    </Grid>
-                    <Grid item xs={12}>29 minutes ago</Grid>
-                  </Grid>
+                  {
+                    (commonUtility.checkRoleUser(currentUser.role) && commonUtility.isSolvedQuestion(detailCard.status)) && (
+                        <React.Fragment>
+                          <Grid item xs={1}>
+                            <PersonOutlineOutlinedIcon fontSize="large"></PersonOutlineOutlinedIcon>
+                          </Grid>
+                          <Grid item xs={11}>
+                            <Grid item xs={12}>
+                              <div><b>{detailCard.tutorName}</b> solved the question <a href="#">view here</a></div>
+                            </Grid>
+                            <Grid item xs={12}>{detailCard.answerDate}</Grid>
+                          </Grid>
+                        </React.Fragment>
+                    )
+                  }
 
                   <Grid item xs={1}></Grid>
                   <Grid item xs={11}>
-                    <MicIcon fontSize="large"></MicIcon>
-                    <VideocamIcon fontSize="large"></VideocamIcon>
-                    <ChatIcon fontSize="large"></ChatIcon>
+                    <MicIcon fontSize="large" style={viewStyles.connectIcon}></MicIcon>
+                    <VideocamIcon fontSize="large" style={viewStyles.connectIcon}></VideocamIcon>
+                    <ChatIcon fontSize="large" style={viewStyles.connectIcon}></ChatIcon>
                   </Grid>
                 </Grid>
               </DialogContent>

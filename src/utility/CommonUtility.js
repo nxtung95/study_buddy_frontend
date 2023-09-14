@@ -29,6 +29,13 @@ const commonUtility = {
             return true;
         }
         return false;
+    },
+
+    isSolvedQuestion(status) {
+        if (status === 1) {
+            return true;
+        }
+        return false;
     }
 }
 
