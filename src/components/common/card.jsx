@@ -33,6 +33,7 @@ import AlertTitle from "@mui/material/AlertTitle";
 
 const CardView = ({ question, subject }) => {
   const dispatch = useDispatch();
+  const currentUser = useSelector(state => state.user.currentUser);
   const [isHovering, setIsHovering] = useState(false);
   const [openQuestionForm, setOpenQuestionForm] = useState(false);
   const [detailCard, setDetailCard] = useState({});
@@ -416,7 +417,7 @@ const CardView = ({ question, subject }) => {
                     <textarea
                         rows={3}
                         style={{minWidth: "700px"}}
-                        placeholder="Write a comment..."
+                        placeholder="Write a answer..."
                         // onChange={handleInputTextChange}
                     >
                       </textarea >

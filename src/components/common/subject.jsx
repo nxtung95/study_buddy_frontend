@@ -34,6 +34,7 @@ import {addCard} from "../../redux/slices/cardSlice";
 
 const Subject = ({ subject }) => {
   const dispatch = useDispatch();
+  const currentUser = useSelector(state => state.user.currentUser);
   const [anchorEl, setAnchorEl] = useState(null);
   const [openQuestionForm, setOpenQuestionForm] = useState(false);
   const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] = useState(false);
@@ -236,14 +237,18 @@ const Subject = ({ subject }) => {
         <IconButton onClick={handleMoreClick}>
           <MoreHorizIcon />
         </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleCloseDeleteSubject}
-        >
-          <MenuItem onClick={handleOpenDeleteDialogConfirm}>Delete</MenuItem>
-          <MenuItem onClick={handleOpenEditSubjectDialog}>Edit</MenuItem>
-        </Menu>
+        {
+          commonUtility.checkRoleUser(currentUser.role) && (
+              <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleCloseDeleteSubject}
+              >
+                <MenuItem onClick={handleOpenDeleteDialogConfirm}>Delete</MenuItem>
+                <MenuItem onClick={handleOpenEditSubjectDialog}>Edit</MenuItem>
+              </Menu>
+          )
+        }
       </div>
 
       {/*Delete subject confirm dialog*/}
@@ -334,12 +339,16 @@ const Subject = ({ subject }) => {
           })
         }
       </div>
-      <div style={styles.addCard} onClick={openAddQuestionDialog}>
-        <IconButton style={styles.addCardButton}>
-          <AddCircleOutlineIcon />
-        </IconButton>
-        <h3 style={styles.addCardText}>Add card</h3>
-      </div>
+      {
+        commonUtility.checkRoleUser(currentUser.role) && (
+            <div style={styles.addCard} onClick={openAddQuestionDialog}>
+              <IconButton style={styles.addCardButton}>
+                <AddCircleOutlineIcon />
+              </IconButton>
+              <h3 style={styles.addCardText}>Add card</h3>
+            </div>
+        )
+      }
       {openQuestionForm && (
           <Dialog open={openQuestionForm} onClose={closeAddQuestionDialog} fullWidth>
             <DialogTitle>Card</DialogTitle>

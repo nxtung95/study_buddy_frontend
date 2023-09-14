@@ -16,6 +16,13 @@ const commonUtility = {
         }
         return false;
     },
+
+    checkRoleUser(role) {
+        if (role !== null && role !== "" && role === "student") {
+            return true;
+        }
+        return false;
+    }
 }
 
 export default commonUtility;

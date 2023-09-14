@@ -27,6 +27,7 @@ const Sidebar = () => {
   const [addSubjectFail, setAddSubjectFail] = useState(false);
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const desc = useSelector(state => state.subject.desc);
+  const currentUser = useSelector(state => state.user.currentUser);
 
   const handleAddSubjectClick = () => {
     setOpenSubjectForm(!openSubjectForm);
@@ -87,7 +88,7 @@ const Sidebar = () => {
             <button style={styles.button}>Tutors</button>
             <button style={styles.button}>Board Settings</button>
             <div style={styles.line}></div>
-            <button style={styles.subjectButton} onClick={handleAddSubjectClick}>
+            <button style={styles.subjectButton} onClick={handleAddSubjectClick} visibility={commonUtility.checkRoleUser(currentUser.role) ? 'visible' : 'hidden'}>
               Add Subject
             </button>
             {openSubjectForm && (
