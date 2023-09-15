@@ -92,7 +92,22 @@ const cardSlice = createSlice({
     reducers: {
         addAnswerCard: (state, action) => {
             state.detailCard.answers.unshift(action.payload);
-        }
+        },
+        updateCardContact: (state, action) => {
+            const data = action.payload;
+            if (data.chatMessage) {
+                state.detailCard.chatMessage = data.chatMessage;
+            }
+            if (data.voiceCall) {
+                state.detailCard.voiceCall = data.voiceCall;
+            }
+            if (data.videoCall) {
+                state.detailCard.videoCall = data.videoCall;
+            }
+        },
+        updateCardStatus: (state, action) => {
+            state.detailCard.status = action.payload.status;
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(addCard.pending, (state) => {
@@ -116,6 +131,7 @@ const cardSlice = createSlice({
             state.desc = action.payload.desc;
             state.code = action.payload.code;
             if (action.payload.code === '00') {
+                console.log("Detail Card: " + JSON.stringify(action.payload));
                 state.detailCard = action.payload;
             }
         });
@@ -163,6 +179,6 @@ const cardSlice = createSlice({
         });
     },
 });
-export const { addAnswerCard } = cardSlice.actions;
+export const { addAnswerCard, updateCardContact, updateCardStatus } = cardSlice.actions;
 export const { isLoading, code, desc, detailCard} = (state) => state.card;
 export default cardSlice.reducer;

@@ -35,7 +35,7 @@ import commonUtility from "../../utility/CommonUtility";
 import {
   addAnswerCard,
   deleteCard,
-  updateCard,
+  updateCard, updateCardContact, updateCardStatus,
   updateContact,
   updateStatus,
   viewCard
@@ -47,6 +47,7 @@ import AlertTitle from "@mui/material/AlertTitle";
 import Comment from "../common/comment"
 import {addAnswer} from "../../redux/slices/answerSlice";
 import FormControl from "@mui/material/FormControl";
+import ChatMessage from "../Chat/ChatMessage";
 
 const CardView = ({ question, subject }) => {
   const dispatch = useDispatch();
@@ -71,11 +72,8 @@ const CardView = ({ question, subject }) => {
   const descUpdateStatus = useSelector(state => state.card.desc);
   const descAddAnswer = useSelector(state => state.answer.desc);
   const detailCard = useSelector(state => state.card.detailCard);
-  const [isAllowChatMessage, setIsAllowChatMessage] = useState(true);
-  const [isAllowVoiceCall, setIsAllowVoiceCall] = useState(true);
-  const [isAllowVideoCall, setIsAllowVideoCall] = useState(true);
-  const [changeStatus, setChangeStatus] = useState(question.status);
   const [openDialogChangeStatus, setOpenDialogChangeStatus] = useState(false);
+  const [openDialogChat, setOpenDialogChat] = useState(false);
   const [inputText, setInputText] = useState(detailCard.inputText);
 
   const handleMouseOver = () => {
@@ -334,15 +332,24 @@ const CardView = ({ question, subject }) => {
   }
 
   const handleChangeAllowChat = (e) => {
-    setIsAllowChatMessage(e.target.checked);
+    const data = {
+      "chatMessage": e.target.checked
+    }
+    dispatch(updateCardContact(data));
   }
 
   const handleChangeVideoCall = (e) => {
-    setIsAllowVideoCall(e.target.checked);
+    const data = {
+      "videoCall": e.target.checked
+    }
+    dispatch(updateCardContact(data));
   }
 
   const handleChangeVoiceCall = (e) => {
-    setIsAllowVoiceCall(e.target.checked);
+    const data = {
+      "voiceCall": e.target.checked
+    }
+    dispatch(updateCardContact(data));
   }
 
   const handleApplyContact = (e) => {
@@ -350,9 +357,9 @@ const CardView = ({ question, subject }) => {
 
     const data = {
       'questionId': question.id,
-      'isAllowChat': isAllowChatMessage ? 1 : 0,
-      'isAllowVideoCall': isAllowVideoCall ? 1 : 0,
-      'isAllowVoiceCall': isAllowVoiceCall ? 1 : 0
+      'isAllowChat': detailCard.chatMessage ? 1 : 0,
+      'isAllowVideoCall': detailCard.videoCall ? 1 : 0,
+      'isAllowVoiceCall': detailCard.voiceCall ? 1 : 0
     }
 
     dispatch(updateContact(data))
@@ -377,7 +384,7 @@ const CardView = ({ question, subject }) => {
 
     const data = {
       'questionId': question.id,
-      'status': !changeStatus ? 1 : 0
+      'status': detailCard.status === 1 ? 0 : 1
     }
 
     dispatch(updateStatus(data))
@@ -386,8 +393,8 @@ const CardView = ({ question, subject }) => {
           handleCloseDialogChangeStatus();
           if (commonUtility.isSuccess(result.code)) {
             dispatch(changeStatusQuestion(data))
-            setUpdateStatusFail(false);
-            setChangeStatus(!changeStatus ? 1 : 0);
+            dispatch(updateCardStatus(data));
+            setUpdateStatusFail(false);;
           } else {
             setUpdateStatusFail(true);
           }
@@ -403,6 +410,14 @@ const CardView = ({ question, subject }) => {
 
   const handleCloseDialogChangeStatus = () => {
     setOpenDialogChangeStatus(!openDialogChangeStatus);
+  }
+
+  const handleCloseDialogChat = () => {
+    setOpenDialogChat(!openDialogChat);
+  }
+
+  const handleChatMessage = () => {
+    setOpenDialogChat(true);
   }
 
   return (
@@ -445,7 +460,7 @@ const CardView = ({ question, subject }) => {
                   </DialogTitle>
                   <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                      {changeStatus === 0 ? 'Resolve this question' : 'Unresolved this requestion'}
+                      {detailCard.status === 0 ? 'Resolve this question' : 'Unresolved this requestion'}
                     </DialogContentText>
                   </DialogContent>
                   <DialogActions>
@@ -456,6 +471,16 @@ const CardView = ({ question, subject }) => {
                   </DialogActions>
                 </Dialog>
             )
+        }
+
+        {
+            openDialogChat && (
+                <ChatMessage
+                    openDialogChat={openDialogChat}
+                    setOpenDialogChat={setOpenDialogChat}
+                    handleCloseDialogChat={handleCloseDialogChat}>
+                </ChatMessage>
+          )
         }
 
         {openQuestionForm && (
@@ -476,7 +501,7 @@ const CardView = ({ question, subject }) => {
                       commonUtility.checkRoleTutor(currentUser.role) && (
                           <FormControlLabel
                               control={
-                                <Switch size="medium" checked={changeStatus === 1 ? true : false}
+                                <Switch size="medium" checked={!!(detailCard && detailCard.status === 1)}
                                         onChange={(e) => setOpenDialogChangeStatus(true)} />
                               }
                               label="Resolve question"
@@ -629,13 +654,12 @@ const CardView = ({ question, subject }) => {
                                   <Grid container justifyContent="flex-start" alignItems="center">
                                     {
                                         fileSelectedList && fileSelectedList.map((selectedFile, index) => {
-                                          return <Card sx={{ maxWidth: 200 }}>
+                                          return <Card sx={{ maxWidth: 200 }} key={index}>
                                             <CardMedia
                                                 alt="Img"
                                                 style={{width: 100, height: 100}}
                                                 component="img"
                                                 src={selectedFile.data.includes('data:image/jpeg') ? selectedFile.data : 'data:image/jpeg;base64,' + selectedFile.data }
-                                                key={index}
                                             />
                                           </Card>
                                         })
@@ -772,19 +796,19 @@ const CardView = ({ question, subject }) => {
                                 <Box sx={{ display: 'inline-flex', justifyContent: 'flex-start', alignItems: 'flex-start', gap: "10px" }}>
                                   <FormControlLabel
                                       control={
-                                        <Switch checked={isAllowChatMessage} onChange={handleChangeAllowChat} name="isAllowChatMessage" />
+                                        <Switch checked={detailCard.chatMessage} onChange={handleChangeAllowChat} name="isAllowChatMessage" />
                                       }
                                       label="Allow chat message"
                                   />
                                   <FormControlLabel
                                       control={
-                                        <Switch checked={isAllowVoiceCall} onChange={handleChangeVoiceCall} name="isAllowVoiceCall" />
+                                        <Switch checked={detailCard.voiceCall} onChange={handleChangeVoiceCall} name="isAllowVoiceCall" />
                                       }
                                       label="Allow voice call"
                                   />
                                   <FormControlLabel
                                       control={
-                                        <Switch checked={isAllowVideoCall} onChange={handleChangeVideoCall} name="isAllowVideoCall" />
+                                        <Switch checked={detailCard.videoCall} onChange={handleChangeVideoCall} name="isAllowVideoCall" />
                                       }
                                       label="Allow video call"
                                   />
@@ -815,28 +839,28 @@ const CardView = ({ question, subject }) => {
                                 </React.Fragment>
                             )
                           }
-
-                          <Grid item xs={1}></Grid>
-                          <Grid item xs={11}>
-                            {
-                              isAllowChatMessage && (
-                                  <ChatIcon fontSize="large" style={viewStyles.connectIcon}></ChatIcon>
-                              )
-                            }
-                            {
-                              isAllowVideoCall && (
-                                  <VideocamIcon fontSize="large" style={viewStyles.connectIcon}></VideocamIcon>
-                              )
-                            }
-                            {
-                              isAllowVoiceCall && (
-                                  <MicIcon fontSize="large" style={viewStyles.connectIcon}></MicIcon>
-                              )
-                            }
-                          </Grid>
                         </React.Fragment>
                     )
                   }
+
+                  <Grid item xs={1}></Grid>
+                  <Grid item xs={11}>
+                    {
+                        detailCard.chatMessage && (
+                            <ChatIcon fontSize="large" style={viewStyles.connectIcon} onClick={handleChatMessage}></ChatIcon>
+                        )
+                    }
+                    {
+                        detailCard.videoCall && (
+                            <VideocamIcon fontSize="large" style={viewStyles.connectIcon}></VideocamIcon>
+                        )
+                    }
+                    {
+                        detailCard.voiceCall && (
+                            <MicIcon fontSize="large" style={viewStyles.connectIcon}></MicIcon>
+                        )
+                    }
+                  </Grid>
                 </Grid>
               </DialogContent>
               <DialogActions style={{backgroundColor: "#f0f1f3"}}>
