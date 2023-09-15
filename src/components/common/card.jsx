@@ -38,7 +38,7 @@ import {
   updateCard,
   updateCardContact,
   updateCardStatus,
-  updateContact,
+  updateContact, updateSolution,
   updateStatus,
   viewCard
 } from "../../redux/slices/cardSlice";
@@ -61,25 +61,28 @@ const CardView = ({ question, subject }) => {
   const [content, setContent] = useState("");
   const [formAnswerErrors, setFormAnswerErrors] = useState({});
   const [formCardErrors, setFormCardErrors] = useState({});
-  const [fileSelectedList, setFileSelectedList] = useState([]);
-  const [solutionFileSelectedList, setSolutionFileSelectedList] = useState([]);
   const [isUpdateCard, setIsUpdateCard] = useState(false);
   const [isUpdateContact, setIsUpdateContact] = useState(false);
   const [isUpdateStatus, setIsUpdateStatus] = useState(false);
   const [isAddAnswer, setIsAddAnswer] = useState(false);
+  const [isUpdateSolution, setIsUpdateSolution] = useState(false);
   const [updateCardFail, setUpdateCardFail] = useState(false);
   const [updateContactFail, setUpdateContactFail] = useState(false);
   const [updateStatusFail, setUpdateStatusFail] = useState(false);
   const [updateAddAnswerFail, setUpdateAddAnswerFail] = useState(false);
+  const [updateSolutionFail, setUpdateSolutionFail] = useState(false);
   const [hideAnswer, setHideAnswer] = useState(true);
   const descUpdateCard = useSelector(state => state.card.desc);
   const descUpdateContact = useSelector(state => state.card.desc);
   const descUpdateStatus = useSelector(state => state.card.desc);
+  const descUpdateSolution = useSelector(state => state.card.desc);
   const descAddAnswer = useSelector(state => state.answer.desc);
   const detailCard = useSelector(state => state.card.detailCard);
   const [openDialogChangeStatus, setOpenDialogChangeStatus] = useState(false);
   const [openDialogChat, setOpenDialogChat] = useState(false);
   const [inputText, setInputText] = useState(detailCard.inputText);
+  const [fileSelectedList, setFileSelectedList] = useState(detailCard.images);
+  const [solutionFileSelectedList, setSolutionFileSelectedList] = useState(detailCard.solutions);
 
   const handleMouseOver = () => {
     setIsHovering(true);
@@ -213,6 +216,7 @@ const CardView = ({ question, subject }) => {
     setIsUpdateContact(false);
     setIsAddAnswer(false);
     setIsUpdateStatus(false);
+    setIsUpdateSolution(false);
     setOpenQuestionForm(false);
   };
 
@@ -338,6 +342,7 @@ const CardView = ({ question, subject }) => {
 
   const handleChangeAllowChat = (e) => {
     const data = {
+      "type": 0,
       "chatMessage": e.target.checked
     }
     dispatch(updateCardContact(data));
@@ -345,6 +350,7 @@ const CardView = ({ question, subject }) => {
 
   const handleChangeVideoCall = (e) => {
     const data = {
+      "type": 1,
       "videoCall": e.target.checked
     }
     dispatch(updateCardContact(data));
@@ -352,6 +358,7 @@ const CardView = ({ question, subject }) => {
 
   const handleChangeVoiceCall = (e) => {
     const data = {
+      "type": 2,
       "voiceCall": e.target.checked
     }
     dispatch(updateCardContact(data));
@@ -434,6 +441,40 @@ const CardView = ({ question, subject }) => {
     newTab.document.body.innerHTML = '<img src="' + selectedImage[0].data + '">';
   }
 
+  const handleUploadSolution = (e) => {
+    e.preventDefault();
+
+    const card = {
+      "questionId": question.id,
+      "subjectId": subject.id,
+      "files": []
+    };
+    for (let i = 0; i < solutionFileSelectedList.length; i++) {
+      const file = {
+        "fileName": solutionFileSelectedList[i].fileName,
+        "data": solutionFileSelectedList[i].data
+      }
+      card["files"].push(file);
+    }
+
+    dispatch(updateSolution(card))
+        .unwrap()
+        .then((result) => {
+          if (commonUtility.isSuccess(result.code)) {
+            setUpdateSolutionFail(false);
+            setIsUpdateSolution(true);
+          } else {
+            setUpdateSolutionFail(true);
+            setIsUpdateSolution(true);
+          }
+        })
+        .catch(() => {
+          console.log("Update solution has failed");
+          setUpdateSolutionFail(true);
+          setIsUpdateSolution(true);
+        });
+  }
+
   return (
       <React.Fragment>
         <div
@@ -502,7 +543,7 @@ const CardView = ({ question, subject }) => {
               <DialogTitle style={{backgroundColor: "#f0f1f3"}}>
                 <Grid container spacing={2}>
                   <Grid item xs={1}>
-                    <ArticleOutlinedIcon fontSize="large"></ArticleOutlinedIcon>
+                    <ArticleOutlinedIcon color="primary" fontSize="large"></ArticleOutlinedIcon>
                   </Grid>
                   <Grid item xs={6} >
                     <Grid item xs={12}>
@@ -551,8 +592,8 @@ const CardView = ({ question, subject }) => {
                           <Typography style={viewStyles.cardInfoTitle}>
                             Members
                           </Typography>
-                          <PersonOutlineOutlinedIcon fontSize="large"></PersonOutlineOutlinedIcon>
-                          <ControlPointIcon fontSize="large"></ControlPointIcon>
+                          <PersonOutlineOutlinedIcon color="primary" fontSize="large"></PersonOutlineOutlinedIcon>
+                          <ControlPointIcon color="primary" fontSize="large"></ControlPointIcon>
                         </CardContent>
                       </Card>
                       <Card sx={{ minWidth: 10 }} style={{ border: "none", boxShadow: "none" }}>
@@ -562,7 +603,7 @@ const CardView = ({ question, subject }) => {
                           </Typography>
                           <Box sx={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center' }}>
                             <div style={question.status === 1 ? viewStyles.answeredPill : viewStyles.notAnsweredPill}></div>
-                            <ControlPointIcon fontSize="large"></ControlPointIcon>
+                            <ControlPointIcon color="primary" fontSize="large"></ControlPointIcon>
                           </Box>
                         </CardContent>
                       </Card>
@@ -575,7 +616,7 @@ const CardView = ({ question, subject }) => {
                             <Typography style={viewStyles.cardInfoTitle}>
                               Watching
                             </Typography>
-                            <RemoveRedEyeIcon fontSize="large"></RemoveRedEyeIcon>
+                            <RemoveRedEyeIcon color="primary" fontSize="large"></RemoveRedEyeIcon>
                           </Box>
                         </CardContent>
                       </Card>
@@ -596,7 +637,7 @@ const CardView = ({ question, subject }) => {
                   }
 
                   <Grid item xs={1}>
-                    <DensitySmallOutlinedIcon fontSize="large"></DensitySmallOutlinedIcon>
+                    <DensitySmallOutlinedIcon color="primary" fontSize="large"></DensitySmallOutlinedIcon>
                   </Grid>
                   <Grid item xs={2}>
                     <div style={viewStyles.description}>Description</div>
@@ -683,8 +724,8 @@ const CardView = ({ question, subject }) => {
                                                     "&:hover": {
                                                       backgroundColor: "#e0e0e0",
                                                     }
-                                                  }} aria-label="delete" size="large">
-                                                    <VisibilityIcon color="primary" fontSize="medium" data-image={index} onClick={(e) => handleViewImage(e)} />
+                                                  }} aria-label="delete" size="large" data-image={index} onClick={(e) => handleViewImage(e)}>
+                                                    <VisibilityIcon color="primary" fontSize="medium" />
                                                   </IconButton>
                                                 </CardActions>
                                               </Card>
@@ -702,7 +743,7 @@ const CardView = ({ question, subject }) => {
                   }
 
                   <Grid item xs={1}>
-                    <ChatOutlinedIcon fontSize="large"></ChatOutlinedIcon>
+                    <ChatOutlinedIcon color="primary" fontSize="large"></ChatOutlinedIcon>
                   </Grid>
                   <Grid item xs={9}>
                     <div style={viewStyles.description}>Activity</div>
@@ -779,26 +820,53 @@ const CardView = ({ question, subject }) => {
                     )
                   }
 
-                  {/*{*/}
-                  {/*    commonUtility.checkRoleTutor(currentUser.role) && (*/}
-                  {/*        <React.Fragment>*/}
-                  {/*          <Grid item xs={1}>*/}
-                  {/*            <EmojiObjectsOutlinedIcon fontSize="large"></EmojiObjectsOutlinedIcon>*/}
-                  {/*          </Grid>*/}
-                  {/*          <Grid item xs={11}>*/}
-                  {/*            /!*<ImageUploadCard setFileSelectedList={setSolutionFileSelectedList} fileSelectedList={solutionFileSelectedList}></ImageUploadCard>*!/*/}
-                  {/*          </Grid>*/}
-                  {/*          <Grid item xs={1}></Grid>*/}
-                  {/*        </React.Fragment>*/}
-                  {/*    )*/}
-                  {/*}*/}
+                  {
+                      commonUtility.checkRoleTutor(currentUser.role) && (
+                          <React.Fragment>
+                            <Grid item xs={1}>
+                              <EmojiObjectsOutlinedIcon color="primary" fontSize="large"></EmojiObjectsOutlinedIcon>
+                            </Grid>
+                            <Grid item xs={10}>
+                              <ImageUploadCard setFileSelectedList={setSolutionFileSelectedList} fileSelectedList={solutionFileSelectedList}/>
+                            </Grid>
+                            <Grid item xs={1}></Grid>
 
+                            <Grid item xs={3}></Grid>
+                            <Grid item xs={4}>
+                              <Button
+                                  type="submit"
+                                  fullWidth
+                                  variant="contained"
+                                  onClick={handleUploadSolution}
+                              >
+                                Upload solution
+                              </Button>
+                            </Grid>
+                            <Grid item xs={5}></Grid>
+                          </React.Fragment>
+                      )
+                  }
+                  {
+                    (commonUtility.checkRoleTutor(currentUser.role) && isUpdateSolution)  && (
+                        <React.Fragment>
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={11}>
+                            <Stack sx={{ minWidth: 500 }} spacing={2} visibility={isUpdateSolution ? 'visible' : 'hidden'}>
+                              <Alert severity={updateSolutionFail ? 'error' : 'success'}>
+                                <AlertTitle>{updateSolutionFail ? 'Error upload solution' : 'Success upload solution'}</AlertTitle>
+                                <strong>{descUpdateSolution}</strong>
+                              </Alert>
+                            </Stack>
+                          </Grid>
+                        </React.Fragment>
+                    )
+                  }
 
                   {
                     (commonUtility.checkRoleUser(currentUser.role) && commonUtility.isSolvedQuestion(detailCard.status)) && (
                         <React.Fragment>
                           <Grid item xs={1}>
-                            <PersonOutlineOutlinedIcon fontSize="large"></PersonOutlineOutlinedIcon>
+                            <PersonOutlineOutlinedIcon color="primary" fontSize="large"></PersonOutlineOutlinedIcon>
                           </Grid>
                           <Grid item xs={11}>
                             <Grid item xs={12}>
@@ -872,17 +940,17 @@ const CardView = ({ question, subject }) => {
                   <Grid item xs={11}>
                     {
                         detailCard.chatMessage && (
-                            <ChatIcon fontSize="large" style={viewStyles.connectIcon} onClick={handleChatMessage}></ChatIcon>
+                            <ChatIcon color="primary" fontSize="large" style={viewStyles.connectIcon} onClick={handleChatMessage}></ChatIcon>
                         )
                     }
                     {
                         detailCard.videoCall && (
-                            <VideocamIcon fontSize="large" style={viewStyles.connectIcon}></VideocamIcon>
+                            <VideocamIcon color="primary" fontSize="large" style={viewStyles.connectIcon}></VideocamIcon>
                         )
                     }
                     {
                         detailCard.voiceCall && (
-                            <MicIcon fontSize="large" style={viewStyles.connectIcon}></MicIcon>
+                            <MicIcon color="primary" fontSize="large" style={viewStyles.connectIcon}></MicIcon>
                         )
                     }
                   </Grid>

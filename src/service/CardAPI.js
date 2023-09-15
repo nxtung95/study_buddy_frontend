@@ -66,6 +66,17 @@ const cardAPI = {
             },
             body: JSON.stringify(data)
         });
+    },
+
+    updateSolution(data) {
+        return fetch(API_URL + "/app/questions/updateSolution", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + authService.getAccessTokenHeader()
+            },
+            body: JSON.stringify(data)
+        });
     }
 }
 export default cardAPI;

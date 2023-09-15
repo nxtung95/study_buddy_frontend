@@ -1,12 +1,6 @@
 // imports the React Javascript Library
 import React from "react";
 //Card
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-
-import Fab from "@material-ui/core/Fab";
-import Grid from "@material-ui/core/Grid";
-
 import red from "@material-ui/core/colors/red";
 import blue from "@material-ui/core/colors/blue";
 import AddPhotoAlternateIcon from "@material-ui/icons/AddPhotoAlternate";
@@ -14,8 +8,7 @@ import AddPhotoAlternateIcon from "@material-ui/icons/AddPhotoAlternate";
 // Search
 //Tabs
 import {withStyles} from "@material-ui/core/styles";
-import {CardActions, CardMedia, IconButton} from "@mui/material";
-import Button from "@mui/material/Button";
+import {Card, CardActions, CardContent, CardMedia, Fab, Grid, IconButton} from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
@@ -148,15 +141,15 @@ class ImageUploadCard extends React.Component {
                                             "&:hover": {
                                                 backgroundColor: "#e0e0e0",
                                             }
-                                        }} aria-label="delete" size="large">
-                                            <DeleteIcon color="primary" fontSize="medium" data-image={index} onClick={(e) => this.handleRemoveSelectedImage(e)} />
+                                        }} aria-label="delete" size="large" data-image={index} onClick={(e) => this.handleRemoveSelectedImage(e)}>
+                                            <DeleteIcon color="primary" fontSize="medium" />
                                         </IconButton>
                                         <IconButton  sx={{
                                             "&:hover": {
                                                 backgroundColor: "#e0e0e0",
                                             }
-                                        }} aria-label="delete" size="large">
-                                            <VisibilityIcon color="primary" fontSize="medium" data-image={index} onClick={(e) => this.handleViewImage(e)} />
+                                        }} aria-label="delete" size="large" data-image={index} onClick={(e) => this.handleViewImage(e)}>
+                                            <VisibilityIcon color="primary" fontSize="medium"/>
                                         </IconButton>
                                     </CardActions>
                                 </Card>
@@ -203,15 +196,15 @@ class ImageUploadCard extends React.Component {
                                                 "&:hover": {
                                                     backgroundColor: "#e0e0e0",
                                                 }
-                                            }} aria-label="delete" size="large">
-                                                <DeleteIcon color="primary" fontSize="medium" data-image={index} onClick={(e) => this.handleRemoveSelectedImage(e)} />
+                                            }} aria-label="delete" size="large" data-image={index} onClick={(e) => this.handleRemoveSelectedImage(e)}>
+                                                <DeleteIcon color="primary" fontSize="medium" />
                                             </IconButton>
                                             <IconButton  sx={{
                                                 "&:hover": {
                                                     backgroundColor: "#e0e0e0",
                                                 }
-                                            }} aria-label="delete" size="large">
-                                                <VisibilityIcon color="primary" fontSize="medium" data-image={index} onClick={(e) => this.handleViewImage(e)} />
+                                            }} aria-label="delete" size="large" data-image={index} onClick={(e) => this.handleViewImage(e)}>
+                                                <VisibilityIcon color="primary" fontSize="medium" />
                                             </IconButton>
                                         </CardActions>
                                     </Card>

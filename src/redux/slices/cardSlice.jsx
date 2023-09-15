@@ -80,6 +80,19 @@ export const updateStatus = createAsyncThunk(
     }
 );
 
+export const updateSolution = createAsyncThunk(
+    "card/updateSolution",
+    async (data, thunkAPI) => {
+        try {
+            const response = await cardAPI.updateSolution(data);
+            return response.json();
+        } catch (error) {
+            console.log(error);
+            return thunkAPI.rejectWithValue({ error: "An error occurred" });
+        }
+    }
+);
+
 const cardSlice = createSlice({
     name: "card",
     initialState: {
@@ -95,18 +108,19 @@ const cardSlice = createSlice({
         },
         updateCardContact: (state, action) => {
             const data = action.payload;
-            if (data.chatMessage) {
+            if (data.type === 0) {
                 state.detailCard.chatMessage = data.chatMessage;
-            }
-            if (data.voiceCall) {
+            } else if (data.type === 2) {
                 state.detailCard.voiceCall = data.voiceCall;
-            }
-            if (data.videoCall) {
+            } else if (data.type === 1) {
                 state.detailCard.videoCall = data.videoCall;
             }
         },
         updateCardStatus: (state, action) => {
             state.detailCard.status = action.payload.status;
+        },
+        updateCardSolution: (state, action) => {
+            state.detailCard.solutions = action.payload.solutions;
         },
     },
     extraReducers: (builder) => {
@@ -177,8 +191,14 @@ const cardSlice = createSlice({
             state.desc = action.payload.desc;
             state.code = action.payload.code;
         });
+
+        builder.addCase(updateSolution.fulfilled, (state, action) => {
+            state.isLoading = false;
+            state.desc = action.payload.desc;
+            state.code = action.payload.code;
+        });
     },
 });
-export const { addAnswerCard, updateCardContact, updateCardStatus } = cardSlice.actions;
+export const { addAnswerCard, updateCardContact, updateCardStatus, updateCardSolution } = cardSlice.actions;
 export const { isLoading, code, desc, detailCard} = (state) => state.card;
 export default cardSlice.reducer;
