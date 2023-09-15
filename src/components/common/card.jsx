@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardContent,
+  CardMedia,
   Dialog,
   DialogActions,
   DialogContent,
@@ -27,6 +28,7 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import ChatIcon from '@mui/icons-material/Chat';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
+import EmojiObjectsOutlinedIcon from '@mui/icons-material/EmojiObjectsOutlined';
 import ImageUploadCard from "./uploadImage";
 import {useDispatch, useSelector} from "react-redux";
 import commonUtility from "../../utility/CommonUtility";
@@ -596,7 +598,7 @@ const CardView = ({ question, subject }) => {
                   <Grid item xs={11}>
                       <textarea
                           rows={20}
-                          style={{minWidth: "700px"}}
+                          style={{minWidth: "755px"}}
                           defaultValue={inputText}
                           onChange={(e) => handleInputTextChange(e)}
                           disabled={commonUtility.checkRoleUser(currentUser.role) ? false : true}
@@ -605,6 +607,7 @@ const CardView = ({ question, subject }) => {
                       <FormHelperText disabled={!!formCardErrors['inputText']} style={{ color: "red" }}>{formCardErrors['inputText'] ? formCardErrors['inputText'].message : ''}</FormHelperText>
                   </Grid>
 
+                  {/*Handle image*/}
                   {
                     commonUtility.checkRoleUser(currentUser.role) && (
                         <React.Fragment>
@@ -614,6 +617,36 @@ const CardView = ({ question, subject }) => {
                           </Grid>
                         </React.Fragment>
                     )
+                  }
+                  {
+                    commonUtility.checkRoleTutor(currentUser.role) && (
+                        <React.Fragment>
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={11}>
+                            <Box component="div" sx={{ minWidth: 350 }}>
+                              <Card>
+                                <CardContent>
+                                  <Grid container justifyContent="flex-start" alignItems="center">
+                                    {
+                                        fileSelectedList && fileSelectedList.map((selectedFile, index) => {
+                                          return <Card sx={{ maxWidth: 200 }}>
+                                            <CardMedia
+                                                alt="Img"
+                                                style={{width: 100, height: 100}}
+                                                component="img"
+                                                src={selectedFile.data.includes('data:image/jpeg') ? selectedFile.data : 'data:image/jpeg;base64,' + selectedFile.data }
+                                                key={index}
+                                            />
+                                          </Card>
+                                        })
+                                    }
+                                  </Grid>
+                                </CardContent>
+                              </Card>
+                            </Box>
+                          </Grid>
+                        </React.Fragment>
+                      )
                   }
 
                   <Grid item xs={1}>
@@ -649,18 +682,18 @@ const CardView = ({ question, subject }) => {
                               Add answer
                             </Button>
                           </Grid>
-                          {
-                            isAddAnswer && (
-                                <Grid item xs={9}>
-                                  <Stack sx={{ minWidth: 500, margin: 0, padding: 0 }} visibility={isAddAnswer ? 'visible' : 'hidden'}>
-                                    <Alert severity={updateAddAnswerFail ? 'error' : 'success'}>
-                                      <AlertTitle>{updateAddAnswerFail ? 'Error' : 'Success'}</AlertTitle>
-                                      <strong>{descAddAnswer}</strong>
-                                    </Alert>
-                                  </Stack>
-                                </Grid>
-                              )
-                          }
+                          <Grid item xs={9}>
+                            {
+                              isAddAnswer && (
+                                    <Stack sx={{ minWidth: 500, margin: 0, padding: 0 }} visibility={isAddAnswer ? 'visible' : 'hidden'}>
+                                      <Alert severity={updateAddAnswerFail ? 'error' : 'success'}>
+                                        <AlertTitle>{updateAddAnswerFail ? 'Error' : 'Success'}</AlertTitle>
+                                        <strong>{descAddAnswer}</strong>
+                                      </Alert>
+                                    </Stack>
+                                )
+                            }
+                          </Grid>
                         </React.Fragment>
                     )
                   }
@@ -672,7 +705,7 @@ const CardView = ({ question, subject }) => {
                           <Grid item xs={11}>
                             <textarea
                                 rows={10}
-                                style={{minWidth: "700px"}}
+                                style={{minWidth: "755px"}}
                                 placeholder="Write a answer..."
                                 onChange={handleContentTextChange}
                             >
@@ -693,6 +726,24 @@ const CardView = ({ question, subject }) => {
                         </React.Fragment>
                     )
                   }
+
+                  {
+                    /*Upload solution image*/
+                      commonUtility.checkRoleTutor(currentUser.role) && (
+                          <React.Fragment>
+                            <Grid item xs={1}>
+                              <EmojiObjectsOutlinedIcon fontSize="large"></EmojiObjectsOutlinedIcon>
+                            </Grid>
+                            <Grid item xs={10}>
+                              <ImageUploadCard setFileSelectedList={[]} fileSelectedList={[]}/>
+                            </Grid>
+                            <Grid item xs={1}>
+
+                            </Grid>
+                          </React.Fragment>
+                      )
+                  }
+
 
                   {
                     (commonUtility.checkRoleUser(currentUser.role) && commonUtility.isSolvedQuestion(detailCard.status)) && (

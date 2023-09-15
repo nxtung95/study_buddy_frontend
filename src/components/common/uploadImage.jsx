@@ -123,13 +123,12 @@ class ImageUploadCard extends React.Component {
                         </label>
                         {
                             this.state.selectedFileList && this.state.selectedFileList.map((selectedFile, index) => {
-                                return <Card sx={{ maxWidth: 345 }}>
+                                return <Card sx={{ maxWidth: 345 }} key={index}>
                                     <CardMedia
                                         alt="Img"
                                         style={{width: 100, height: 100}}
                                         component="img"
                                         src={selectedFile.data.includes('data:image/jpeg') ? selectedFile.data : 'data:image/jpeg;base64,' + selectedFile.data }
-                                        key={index}
                                     />
                                     <CardActions>
                                         <Button size="small" data-image={index} onClick={(e) => this.handleRemoveSelectedImage(e)}>X</Button>
@@ -165,7 +164,7 @@ class ImageUploadCard extends React.Component {
                         </label>
                         {
                             this.state.selectedFileList && this.state.selectedFileList.map((selectedFile, index) => {
-                                return <Card sx={{ maxWidth: 345 }}>
+                                return <Card sx={{ maxWidth: 345 }} key={index}>
                                         <CardMedia
                                             alt="Img"
                                             style={{width: 100, height: 100}}
