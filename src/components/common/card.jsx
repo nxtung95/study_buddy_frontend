@@ -35,7 +35,9 @@ import commonUtility from "../../utility/CommonUtility";
 import {
   addAnswerCard,
   deleteCard,
-  updateCard, updateCardContact, updateCardStatus,
+  updateCard,
+  updateCardContact,
+  updateCardStatus,
   updateContact,
   updateStatus,
   viewCard
@@ -58,6 +60,7 @@ const CardView = ({ question, subject }) => {
   const [formAnswerErrors, setFormAnswerErrors] = useState({});
   const [formCardErrors, setFormCardErrors] = useState({});
   const [fileSelectedList, setFileSelectedList] = useState([]);
+  const [solutionFileSelectedList, setSolutionFileSelectedList] = useState([]);
   const [isUpdateCard, setIsUpdateCard] = useState(false);
   const [isUpdateContact, setIsUpdateContact] = useState(false);
   const [isUpdateStatus, setIsUpdateStatus] = useState(false);
@@ -643,31 +646,36 @@ const CardView = ({ question, subject }) => {
                         </React.Fragment>
                     )
                   }
+
                   {
                     commonUtility.checkRoleTutor(currentUser.role) && (
                         <React.Fragment>
                           <Grid item xs={1}></Grid>
                           <Grid item xs={11}>
-                            <Box component="div" sx={{ minWidth: 350 }}>
-                              <Card>
-                                <CardContent>
-                                  <Grid container justifyContent="flex-start" alignItems="center">
-                                    {
-                                        fileSelectedList && fileSelectedList.map((selectedFile, index) => {
-                                          return <Card sx={{ maxWidth: 200 }} key={index}>
-                                            <CardMedia
-                                                alt="Img"
-                                                style={{width: 100, height: 100}}
-                                                component="img"
-                                                src={selectedFile.data.includes('data:image/jpeg') ? selectedFile.data : 'data:image/jpeg;base64,' + selectedFile.data }
-                                            />
-                                          </Card>
-                                        })
-                                    }
-                                  </Grid>
-                                </CardContent>
-                              </Card>
-                            </Box>
+                            {
+                              fileSelectedList.length > 0 && (
+                                  <Box component="div" sx={{ minWidth: 350 }}>
+                                    <Card>
+                                      <CardContent>
+                                        <Grid container justifyContent="flex-start" alignItems="center">
+                                          {
+                                            fileSelectedList.map((selectedFile, index) => {
+                                              return <Card sx={{ maxWidth: 200 }} key={index}>
+                                                <CardMedia
+                                                    alt="Img"
+                                                    style={{width: 100, height: 100}}
+                                                    component="img"
+                                                    src={selectedFile.data.includes('data:image/jpeg') ? selectedFile.data : 'data:image/jpeg;base64,' + selectedFile.data }
+                                                />
+                                              </Card>
+                                            })
+                                          }
+                                        </Grid>
+                                      </CardContent>
+                                    </Card>
+                                  </Box>
+                              )
+                            }
                           </Grid>
                         </React.Fragment>
                       )
@@ -751,22 +759,19 @@ const CardView = ({ question, subject }) => {
                     )
                   }
 
-                  {
-                    /*Upload solution image*/
-                      commonUtility.checkRoleTutor(currentUser.role) && (
-                          <React.Fragment>
-                            <Grid item xs={1}>
-                              <EmojiObjectsOutlinedIcon fontSize="large"></EmojiObjectsOutlinedIcon>
-                            </Grid>
-                            <Grid item xs={10}>
-                              <ImageUploadCard setFileSelectedList={[]} fileSelectedList={[]}/>
-                            </Grid>
-                            <Grid item xs={1}>
-
-                            </Grid>
-                          </React.Fragment>
-                      )
-                  }
+                  {/*{*/}
+                  {/*    commonUtility.checkRoleTutor(currentUser.role) && (*/}
+                  {/*        <React.Fragment>*/}
+                  {/*          <Grid item xs={1}>*/}
+                  {/*            <EmojiObjectsOutlinedIcon fontSize="large"></EmojiObjectsOutlinedIcon>*/}
+                  {/*          </Grid>*/}
+                  {/*          <Grid item xs={11}>*/}
+                  {/*            /!*<ImageUploadCard setFileSelectedList={setSolutionFileSelectedList} fileSelectedList={solutionFileSelectedList}></ImageUploadCard>*!/*/}
+                  {/*          </Grid>*/}
+                  {/*          <Grid item xs={1}></Grid>*/}
+                  {/*        </React.Fragment>*/}
+                  {/*    )*/}
+                  {/*}*/}
 
 
                   {

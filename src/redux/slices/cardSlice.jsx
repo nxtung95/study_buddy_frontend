@@ -87,7 +87,7 @@ const cardSlice = createSlice({
         isLoadingViewCard: false,
         code: "",
         desc: "",
-        detailCard: []
+        detailCard: {}
     },
     reducers: {
         addAnswerCard: (state, action) => {
