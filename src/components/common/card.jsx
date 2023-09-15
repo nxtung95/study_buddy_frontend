@@ -3,7 +3,7 @@ import {fonts} from "../Styles/theme";
 import {
   Box,
   Button,
-  Card,
+  Card, CardActions,
   CardContent,
   CardMedia,
   Dialog,
@@ -15,7 +15,7 @@ import {
   FormGroup,
   FormHelperText,
   FormLabel,
-  Grid,
+  Grid, IconButton,
   Switch,
   Typography
 } from "@mui/material";
@@ -50,6 +50,8 @@ import Comment from "../common/comment"
 import {addAnswer} from "../../redux/slices/answerSlice";
 import FormControl from "@mui/material/FormControl";
 import ChatMessage from "../Chat/ChatMessage";
+import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 const CardView = ({ question, subject }) => {
   const dispatch = useDispatch();
@@ -423,6 +425,15 @@ const CardView = ({ question, subject }) => {
     setOpenDialogChat(true);
   }
 
+  const handleViewImage = (e) => {
+    const selectIndex = e.currentTarget.getAttribute("data-image");
+    const selectedImage = fileSelectedList.filter((file, index) => {
+      return parseInt(index) === parseInt(selectIndex);
+    });
+    var newTab = window.open();
+    newTab.document.body.innerHTML = '<img src="' + selectedImage[0].data + '">';
+  }
+
   return (
       <React.Fragment>
         <div
@@ -665,8 +676,17 @@ const CardView = ({ question, subject }) => {
                                                     alt="Img"
                                                     style={{width: 100, height: 100}}
                                                     component="img"
-                                                    src={selectedFile.data.includes('data:image/jpeg') ? selectedFile.data : 'data:image/jpeg;base64,' + selectedFile.data }
+                                                    src={selectedFile.data}
                                                 />
+                                                <CardActions disableSpacing={true}>
+                                                  <IconButton  sx={{
+                                                    "&:hover": {
+                                                      backgroundColor: "#e0e0e0",
+                                                    }
+                                                  }} aria-label="delete" size="large">
+                                                    <VisibilityIcon color="primary" fontSize="medium" data-image={index} onClick={(e) => handleViewImage(e)} />
+                                                  </IconButton>
+                                                </CardActions>
                                               </Card>
                                             })
                                           }

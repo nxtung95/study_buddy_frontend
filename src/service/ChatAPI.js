@@ -19,7 +19,7 @@ const chatAPI = {
             content: text
         }
 
-        return fetch(API_URL + "/app/chat/send", {
+        return fetch(API_URL + "/app/chat/sendMessage", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

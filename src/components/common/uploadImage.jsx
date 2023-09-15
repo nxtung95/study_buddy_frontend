@@ -14,8 +14,10 @@ import AddPhotoAlternateIcon from "@material-ui/icons/AddPhotoAlternate";
 // Search
 //Tabs
 import {withStyles} from "@material-ui/core/styles";
-import {CardActions, CardMedia} from "@mui/material";
+import {CardActions, CardMedia, IconButton} from "@mui/material";
 import Button from "@mui/material/Button";
+import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const styles = theme => ({
     root: {
@@ -94,12 +96,23 @@ class ImageUploadCard extends React.Component {
         console.log(e);
         const removeIndex = e.currentTarget.getAttribute("data-image");
         const updateSelectedFiles = this.state.selectedFileList.filter((file, index) => {
-            return index != removeIndex
+            return index != removeIndex;
         });
+
         this.setState({
             selectedFileList: updateSelectedFiles
         });
         this.props.setFileSelectedList(updateSelectedFiles);
+    }
+
+    handleViewImage = e => {
+        const selectIndex = e.currentTarget.getAttribute("data-image");
+        const selectedImage = this.state.selectedFileList.filter((file, index) => {
+            console.log("index: " + (parseInt(index) === parseInt(selectIndex)));
+            return parseInt(index) === parseInt(selectIndex);
+        });
+        var newTab = window.open();
+        newTab.document.body.innerHTML = '<img src="' + selectedImage[0].data + '">';
     }
 
     renderInitialState() {
@@ -122,16 +135,29 @@ class ImageUploadCard extends React.Component {
                             </Fab>
                         </label>
                         {
-                            this.state.selectedFileList && this.state.selectedFileList.map((selectedFile, index) => {
+                            this.state.selectedFileList.length > 0 && this.state.selectedFileList.map((selectedFile, index) => {
                                 return <Card sx={{ maxWidth: 345 }} key={index}>
                                     <CardMedia
                                         alt="Img"
                                         style={{width: 100, height: 100}}
                                         component="img"
-                                        src={selectedFile.data.includes('data:image/jpeg') ? selectedFile.data : 'data:image/jpeg;base64,' + selectedFile.data }
+                                        src={selectedFile.data}
                                     />
-                                    <CardActions>
-                                        <Button size="small" data-image={index} onClick={(e) => this.handleRemoveSelectedImage(e)}>X</Button>
+                                    <CardActions disableSpacing={true}>
+                                        <IconButton  sx={{
+                                            "&:hover": {
+                                                backgroundColor: "#e0e0e0",
+                                            }
+                                        }} aria-label="delete" size="large">
+                                            <DeleteIcon color="primary" fontSize="medium" data-image={index} onClick={(e) => this.handleRemoveSelectedImage(e)} />
+                                        </IconButton>
+                                        <IconButton  sx={{
+                                            "&:hover": {
+                                                backgroundColor: "#e0e0e0",
+                                            }
+                                        }} aria-label="delete" size="large">
+                                            <VisibilityIcon color="primary" fontSize="medium" data-image={index} onClick={(e) => this.handleViewImage(e)} />
+                                        </IconButton>
                                     </CardActions>
                                 </Card>
                             })
@@ -163,17 +189,30 @@ class ImageUploadCard extends React.Component {
                             </Fab>
                         </label>
                         {
-                            this.state.selectedFileList && this.state.selectedFileList.map((selectedFile, index) => {
+                            this.state.selectedFileList.length > 0 && this.state.selectedFileList.map((selectedFile, index) => {
                                 return <Card sx={{ maxWidth: 345 }} key={index}>
                                         <CardMedia
                                             alt="Img"
                                             style={{width: 100, height: 100}}
                                             component="img"
-                                            src={selectedFile.data.includes('data:image/jpeg') ? selectedFile.data : 'data:image/jpeg;base64,' + selectedFile.data }
+                                            src={selectedFile.data}
                                             key={index}
                                         />
                                         <CardActions>
-                                            <Button size="small" data-image={index} onClick={(e) => this.handleRemoveSelectedImage(e)}>X</Button>
+                                            <IconButton  sx={{
+                                                "&:hover": {
+                                                    backgroundColor: "#e0e0e0",
+                                                }
+                                            }} aria-label="delete" size="large">
+                                                <DeleteIcon color="primary" fontSize="medium" data-image={index} onClick={(e) => this.handleRemoveSelectedImage(e)} />
+                                            </IconButton>
+                                            <IconButton  sx={{
+                                                "&:hover": {
+                                                    backgroundColor: "#e0e0e0",
+                                                }
+                                            }} aria-label="delete" size="large">
+                                                <VisibilityIcon color="primary" fontSize="medium" data-image={index} onClick={(e) => this.handleViewImage(e)} />
+                                            </IconButton>
                                         </CardActions>
                                     </Card>
                             })
