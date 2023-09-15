@@ -2,7 +2,6 @@
 import React from "react";
 //Card
 import Card from "@material-ui/core/Card";
-import CardActionArea from "@material-ui/core/CardActionArea";
 import CardContent from "@material-ui/core/CardContent";
 
 import Fab from "@material-ui/core/Fab";
@@ -15,11 +14,13 @@ import AddPhotoAlternateIcon from "@material-ui/icons/AddPhotoAlternate";
 // Search
 //Tabs
 import {withStyles} from "@material-ui/core/styles";
+import {CardActions, CardMedia} from "@mui/material";
+import Button from "@mui/material/Button";
 
 const styles = theme => ({
     root: {
         // backgroundColor: theme.palette.background.paper,
-        width: 500,
+        width: 700,
         display: "flex",
         justifyContent: "flex-start",
         // alignItems: "center"
@@ -89,6 +90,18 @@ class ImageUploadCard extends React.Component {
         });
     };
 
+    handleRemoveSelectedImage = e => {
+        console.log(e);
+        const removeIndex = e.currentTarget.getAttribute("data-image");
+        const updateSelectedFiles = this.state.selectedFileList.filter((file, index) => {
+            return index != removeIndex
+        });
+        this.setState({
+            selectedFileList: updateSelectedFiles
+        });
+        this.props.setFileSelectedList(updateSelectedFiles);
+    }
+
     renderInitialState() {
         const { classes } = this.props;
         return (
@@ -108,19 +121,22 @@ class ImageUploadCard extends React.Component {
                                 <AddPhotoAlternateIcon />
                             </Fab>
                         </label>
-                        <CardActionArea style={{width: "50%"}}>
-                            {
-                                this.state.selectedFileList && this.state.selectedFileList.map((selectedFile, index) => {
-                                    return <img
-                                        alt=""
-                                        width="50%"
-                                        className={classes.media}
-                                        src={selectedFile.data.includes('data:image/jpeg') ? 'data:image/jpeg;base64,' + selectedFile.data : selectedFile.data}
+                        {
+                            this.state.selectedFileList && this.state.selectedFileList.map((selectedFile, index) => {
+                                return <Card sx={{ maxWidth: 345 }}>
+                                    <CardMedia
+                                        alt="Img"
+                                        style={{width: 100, height: 100}}
+                                        component="img"
+                                        src={selectedFile.data.includes('data:image/jpeg') ? selectedFile.data : 'data:image/jpeg;base64,' + selectedFile.data }
                                         key={index}
                                     />
-                                })
-                            }
-                        </CardActionArea>
+                                    <CardActions>
+                                        <Button size="small" data-image={index} onClick={(e) => this.handleRemoveSelectedImage(e)}>X</Button>
+                                    </CardActions>
+                                </Card>
+                            })
+                        }
                     </Grid>
                 </CardContent>
             </React.Fragment>
@@ -132,34 +148,39 @@ class ImageUploadCard extends React.Component {
 
         return (
             <React.Fragment>
-                <Grid container justifyContent="flex-start" alignItems="center">
-                    <input
-                        accept="image/*"
-                        className={classes.input}
-                        id="contained-button-file"
-                        multiple
-                        type="file"
-                        onChange={this.handleUploadClick}
-                    />
-                    <label htmlFor="contained-button-file">
-                        <Fab component="span" className={classes.button}>
-                            <AddPhotoAlternateIcon />
-                        </Fab>
-                    </label>
-                    <CardActionArea style={{width: "50%"}}>
+                <CardContent>
+                    <Grid container justifyContent="flex-start" alignItems="center">
+                        <input
+                            accept="image/*"
+                            className={classes.input}
+                            id="contained-button-file"
+                            multiple
+                            type="file"
+                            onChange={this.handleUploadClick}
+                        />
+                        <label htmlFor="contained-button-file">
+                            <Fab component="span" className={classes.button}>
+                                <AddPhotoAlternateIcon />
+                            </Fab>
+                        </label>
                         {
                             this.state.selectedFileList && this.state.selectedFileList.map((selectedFile, index) => {
-                                return <img
-                                    alt=""
-                                    width="50%"
-                                    className={classes.media}
-                                    src={selectedFile.data.includes('data:image/jpeg') ? 'data:image/jpeg;base64,' + selectedFile.data : selectedFile.data}
-                                    key={index}
-                                />
+                                return <Card sx={{ maxWidth: 345 }}>
+                                        <CardMedia
+                                            alt="Img"
+                                            style={{width: 100, height: 100}}
+                                            component="img"
+                                            src={selectedFile.data.includes('data:image/jpeg') ? selectedFile.data : 'data:image/jpeg;base64,' + selectedFile.data }
+                                            key={index}
+                                        />
+                                        <CardActions>
+                                            <Button size="small" data-image={index} onClick={(e) => this.handleRemoveSelectedImage(e)}>X</Button>
+                                        </CardActions>
+                                    </Card>
                             })
                         }
-                    </CardActionArea>
-                </Grid>
+                    </Grid>
+                </CardContent>
             </React.Fragment>
         );
     }

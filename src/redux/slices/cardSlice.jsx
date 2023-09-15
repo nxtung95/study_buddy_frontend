@@ -67,6 +67,19 @@ export const updateContact = createAsyncThunk(
     }
 );
 
+export const updateStatus = createAsyncThunk(
+    "card/updateStatus",
+    async (data, thunkAPI) => {
+        try {
+            const response = await cardAPI.updateStatus(data);
+            return response.json();
+        } catch (error) {
+            console.log(error);
+            return thunkAPI.rejectWithValue({ error: "An error occurred" });
+        }
+    }
+);
+
 const cardSlice = createSlice({
     name: "card",
     initialState: {
@@ -96,10 +109,10 @@ const cardSlice = createSlice({
         });
 
         builder.addCase(viewCard.pending, (state) => {
-            state.isLoadingViewCard = true;
+            state.isLoading = true;
         });
         builder.addCase(viewCard.fulfilled, (state, action) => {
-            state.isLoadingViewCard = false;
+            state.isLoading = false;
             state.desc = action.payload.desc;
             state.code = action.payload.code;
             if (action.payload.code === '00') {
@@ -107,7 +120,7 @@ const cardSlice = createSlice({
             }
         });
         builder.addCase(viewCard.rejected, (state, action) => {
-            state.isLoadingViewCard = false;
+            state.isLoading = false;
             state.desc = action.payload.error;
         });
 
@@ -142,8 +155,14 @@ const cardSlice = createSlice({
             state.desc = action.payload.desc;
             state.code = action.payload.code;
         });
+
+        builder.addCase(updateStatus.fulfilled, (state, action) => {
+            state.isLoading = false;
+            state.desc = action.payload.desc;
+            state.code = action.payload.code;
+        });
     },
 });
 export const { addAnswerCard } = cardSlice.actions;
-export const { isLoading, isLoadingViewCard, code, desc, detailCard} = (state) => state.card;
+export const { isLoading, code, desc, detailCard} = (state) => state.card;
 export default cardSlice.reducer;

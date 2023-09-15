@@ -56,5 +56,16 @@ const cardAPI = {
             body: JSON.stringify(data)
         });
     },
+
+    updateStatus(data) {
+        return fetch(API_URL + "/app/questions/updateStatus", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + authService.getAccessTokenHeader()
+            },
+            body: JSON.stringify(data)
+        });
+    }
 }
 export default cardAPI;

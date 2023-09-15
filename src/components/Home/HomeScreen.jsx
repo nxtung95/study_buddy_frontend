@@ -25,20 +25,21 @@ const styles = {
 };
 
 const HomeScreen = () => {
-  // const isLoadingViewCard = useSelector(state => state.card.isLoadingViewCard);
+  const isLoading = useSelector(state => state.card.isLoading);
   return (
       <React.Fragment>
-        {/*<div style={{...styles.container, opacity: isLoadingViewCard ? '0.5' : '1'}}>*/}
-        <div style={{...styles.container}}>
-          <Typography style={styles.title}>StudyBuddy</Typography>
-          <div style={styles.content}>
-            <SideBar />
-            <Board/>
+        <div style={{...styles.container, opacity: isLoading ? '0.5' : '1'}}>
+          <div style={{...styles.container}}>
+            <Typography style={styles.title}>StudyBuddy</Typography>
+            <div style={styles.content}>
+              <SideBar />
+              <Board/>
+            </div>
           </div>
         </div>
-        {/*// <Box sx={{display: 'flex', position: 'fixed', left: '50%', top: '40%', opacity: '1'}} visibility={isLoadingViewCard ? 'visible' : 'hidden'}>*/}
-        {/*//   <CircularProgress />*/}
-        {/*// </Box>*/}
+        <Box sx={{display: 'flex', position: 'fixed', left: '50%', top: '40%', opacity: '1'}} visibility={isLoading ? 'visible' : 'hidden'}>
+          <CircularProgress />
+        </Box>
       </React.Fragment>
   );
 };

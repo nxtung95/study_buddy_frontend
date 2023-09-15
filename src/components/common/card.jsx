@@ -8,9 +8,14 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle, FormControlLabel, FormGroup,
-  FormHelperText, FormLabel,
-  Grid, Switch,
+  DialogContentText,
+  DialogTitle,
+  FormControlLabel,
+  FormGroup,
+  FormHelperText,
+  FormLabel,
+  Grid,
+  Switch,
   Typography
 } from "@mui/material";
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
@@ -25,8 +30,15 @@ import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import ImageUploadCard from "./uploadImage";
 import {useDispatch, useSelector} from "react-redux";
 import commonUtility from "../../utility/CommonUtility";
-import {addAnswerCard, deleteCard, updateCard, updateContact, viewCard} from "../../redux/slices/cardSlice";
-import {deleteUserSubjectQuestion} from "../../redux/slices/userSlice";
+import {
+  addAnswerCard,
+  deleteCard,
+  updateCard,
+  updateContact,
+  updateStatus,
+  viewCard
+} from "../../redux/slices/cardSlice";
+import {changeStatusQuestion, deleteUserSubjectQuestion} from "../../redux/slices/userSlice";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
@@ -39,24 +51,30 @@ const CardView = ({ question, subject }) => {
   const currentUser = useSelector(state => state.user.currentUser);
   const [isHovering, setIsHovering] = useState(false);
   const [openQuestionForm, setOpenQuestionForm] = useState(false);
-  const [inputText, setInputText] = useState("");
   const [content, setContent] = useState("");
   const [formAnswerErrors, setFormAnswerErrors] = useState({});
   const [formCardErrors, setFormCardErrors] = useState({});
   const [fileSelectedList, setFileSelectedList] = useState([]);
   const [isUpdateCard, setIsUpdateCard] = useState(false);
   const [isUpdateContact, setIsUpdateContact] = useState(false);
+  const [isUpdateStatus, setIsUpdateStatus] = useState(false);
+  const [isAddAnswer, setIsAddAnswer] = useState(false);
   const [updateCardFail, setUpdateCardFail] = useState(false);
   const [updateContactFail, setUpdateContactFail] = useState(false);
+  const [updateStatusFail, setUpdateStatusFail] = useState(false);
+  const [updateAddAnswerFail, setUpdateAddAnswerFail] = useState(false);
   const [hideAnswer, setHideAnswer] = useState(true);
   const descUpdateCard = useSelector(state => state.card.desc);
   const descUpdateContact = useSelector(state => state.card.desc);
+  const descUpdateStatus = useSelector(state => state.card.desc);
   const descAddAnswer = useSelector(state => state.answer.desc);
   const detailCard = useSelector(state => state.card.detailCard);
   const [isAllowChatMessage, setIsAllowChatMessage] = useState(true);
   const [isAllowVoiceCall, setIsAllowVoiceCall] = useState(true);
   const [isAllowVideoCall, setIsAllowVideoCall] = useState(true);
   const [changeStatus, setChangeStatus] = useState(question.status);
+  const [openDialogChangeStatus, setOpenDialogChangeStatus] = useState(false);
+  const [inputText, setInputText] = useState(detailCard.inputText);
 
   const handleMouseOver = () => {
     setIsHovering(true);
@@ -187,6 +205,9 @@ const CardView = ({ question, subject }) => {
 
   const closeAddQuestionDialog = () => {
     setIsUpdateCard(false);
+    setIsUpdateContact(false);
+    setIsAddAnswer(false);
+    setIsUpdateStatus(false);
     setOpenQuestionForm(false);
   };
 
@@ -292,14 +313,16 @@ const CardView = ({ question, subject }) => {
         .then((result) => {
           if (commonUtility.isSuccess(result.code)) {
             dispatch(addAnswerCard(result.answer))
-            setUpdateCardFail(false);
+            setUpdateAddAnswerFail(false);
           } else {
-            setUpdateCardFail(true);
+            setUpdateAddAnswerFail(true);
           }
+          setIsAddAnswer(true);
         })
         .catch(() => {
           console.log("Add answer has failed");
-          setUpdateCardFail(true);
+          setIsAddAnswer(true);
+          setUpdateAddAnswerFail(true);
         });
   }
 
@@ -320,14 +343,11 @@ const CardView = ({ question, subject }) => {
     setIsAllowVoiceCall(e.target.checked);
   }
 
-  const handleChangeStatus = (e) => {
-    setChangeStatus(e.target.checked ? 1 : 0);
-  }
-
   const handleApplyContact = (e) => {
     e.preventDefault();
 
     const data = {
+      'questionId': question.id,
       'isAllowChat': isAllowChatMessage ? 1 : 0,
       'isAllowVideoCall': isAllowVideoCall ? 1 : 0,
       'isAllowVoiceCall': isAllowVoiceCall ? 1 : 0
@@ -348,6 +368,39 @@ const CardView = ({ question, subject }) => {
           setUpdateContactFail(true);
           setIsUpdateContact(true);
         });
+  }
+
+  const handleChangeStatus = (e) => {
+    e.preventDefault();
+
+    const data = {
+      'questionId': question.id,
+      'status': !changeStatus ? 1 : 0
+    }
+
+    dispatch(updateStatus(data))
+        .unwrap()
+        .then((result) => {
+          handleCloseDialogChangeStatus();
+          if (commonUtility.isSuccess(result.code)) {
+            dispatch(changeStatusQuestion(data))
+            setUpdateStatusFail(false);
+            setChangeStatus(!changeStatus ? 1 : 0);
+          } else {
+            setUpdateStatusFail(true);
+          }
+          setIsUpdateStatus(true);
+        })
+        .catch(() => {
+          handleCloseDialogChangeStatus();
+          console.log("Update status has failed");
+          setUpdateStatusFail(true);
+          setIsUpdateStatus(true);
+        });
+  }
+
+  const handleCloseDialogChangeStatus = () => {
+    setOpenDialogChangeStatus(!openDialogChangeStatus);
   }
 
   return (
@@ -372,10 +425,36 @@ const CardView = ({ question, subject }) => {
           {/* Answered by text */}
           {
             question.status === 1 && (
-                <p style={styles.answeredByText}>Answered by: John Doe</p>
+                <p style={styles.answeredByText}>Answered by: {question.tutorName}</p>
             )
           }
         </div>
+
+        {
+          openDialogChangeStatus && (
+                <Dialog
+                    open={openDialogChangeStatus}
+                    onClose={handleCloseDialogChangeStatus}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                  <DialogTitle id="alert-dialog-title">
+                    {"Do you want to switch to resolve/unresolved this question?"}
+                  </DialogTitle>
+                  <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                      {changeStatus === 0 ? 'Resolve this question' : 'Unresolved this requestion'}
+                    </DialogContentText>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleChangeStatus} autoFocus>
+                      Agree
+                    </Button>
+                    <Button onClick={handleCloseDialogChangeStatus}>Disagree</Button>
+                  </DialogActions>
+                </Dialog>
+            )
+        }
 
         {openQuestionForm && (
             <Dialog open={openQuestionForm} onClose={closeAddQuestionDialog} maxWidth="md">
@@ -391,13 +470,34 @@ const CardView = ({ question, subject }) => {
                     <Grid item xs={12}><Typography style={viewStyles.subCardTitle}>in list {subject.title}</Typography></Grid>
                   </Grid>
                   <Grid item xs={5}>
-                    <FormControlLabel
-                        control={
-                          <Switch size="medium" checked={changeStatus === 1 ? true : false} onChange={handleChangeStatus} />
-                        }
-                        label="Resolve question"
-                    />
+                    {
+                      commonUtility.checkRoleTutor(currentUser.role) && (
+                          <FormControlLabel
+                              control={
+                                <Switch size="medium" checked={changeStatus === 1 ? true : false}
+                                        onChange={(e) => setOpenDialogChangeStatus(true)} />
+                              }
+                              label="Resolve question"
+                          />
+                        )
+                    }
                   </Grid>
+
+                  {
+                    (isUpdateStatus && commonUtility.checkRoleTutor(currentUser.role)) && (
+                        <React.Fragment>
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={11}>
+                              <Stack sx={{ minWidth: 500 }} spacing={2} visibility={isUpdateStatus ? 'visible' : 'hidden'}>
+                                <Alert severity={updateStatusFail ? 'error' : 'success'}>
+                                  <AlertTitle>{updateStatusFail ? 'Error' : 'Success'}</AlertTitle>
+                                  <strong>{descUpdateStatus}</strong>
+                                </Alert>
+                              </Stack>
+                          </Grid>
+                        </React.Fragment>
+                      )
+                  }
                 </Grid>
               </DialogTitle>
               <DialogContent style={{backgroundColor: "#f0f1f3"}} sx={{minWidth: 700}}>
@@ -442,11 +542,11 @@ const CardView = ({ question, subject }) => {
                   </Grid>
 
                   {
-                    commonUtility.checkRoleUser(currentUser.role) && (
+                    (isUpdateCard && commonUtility.checkRoleUser(currentUser.role)) && (
                         <Grid item xs={12}>
                           <Stack sx={{ minWidth: 500 }} spacing={2} visibility={isUpdateCard ? 'visible' : 'hidden'}>
                             <Alert severity={updateCardFail ? 'error' : 'success'}>
-                              <AlertTitle>{updateCardFail ? 'Success' : 'Eror'}</AlertTitle>
+                              <AlertTitle>{updateCardFail ? 'Error' : 'Success'}</AlertTitle>
                               <strong>{descUpdateCard}</strong>
                             </Alert>
                           </Stack>
@@ -497,7 +597,7 @@ const CardView = ({ question, subject }) => {
                       <textarea
                           rows={20}
                           style={{minWidth: "700px"}}
-                          defaultValue={detailCard.inputText}
+                          defaultValue={inputText}
                           onChange={(e) => handleInputTextChange(e)}
                           disabled={commonUtility.checkRoleUser(currentUser.role) ? false : true}
                       >
@@ -549,14 +649,18 @@ const CardView = ({ question, subject }) => {
                               Add answer
                             </Button>
                           </Grid>
-                          <Grid item xs={9}>
-                            <Stack sx={{ minWidth: 500, margin: 0, padding: 0 }} visibility={updateCardFail ? 'visible' : 'hidden'}>
-                              <Alert severity={'error'}>
-                                <AlertTitle>Eror</AlertTitle>
-                                <strong>{descAddAnswer}</strong>
-                              </Alert>
-                            </Stack>
-                          </Grid>
+                          {
+                            isAddAnswer && (
+                                <Grid item xs={9}>
+                                  <Stack sx={{ minWidth: 500, margin: 0, padding: 0 }} visibility={isAddAnswer ? 'visible' : 'hidden'}>
+                                    <Alert severity={updateAddAnswerFail ? 'error' : 'success'}>
+                                      <AlertTitle>{updateAddAnswerFail ? 'Error' : 'Success'}</AlertTitle>
+                                      <strong>{descAddAnswer}</strong>
+                                    </Alert>
+                                  </Stack>
+                                </Grid>
+                              )
+                          }
                         </React.Fragment>
                     )
                   }
@@ -652,7 +756,7 @@ const CardView = ({ question, subject }) => {
                                   <Grid item xs={11}>
                                     <Stack sx={{ minWidth: 500 }} spacing={2}>
                                       <Alert severity={updateContactFail ? 'error' : 'success'}>
-                                        <AlertTitle>{updateContactFail ? 'Success' : 'Eror'}</AlertTitle>
+                                        <AlertTitle>{updateContactFail ? 'Error' : 'Success'}</AlertTitle>
                                         <strong>{descUpdateContact}</strong>
                                       </Alert>
                                     </Stack>
