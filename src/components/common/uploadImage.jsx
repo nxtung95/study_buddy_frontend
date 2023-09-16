@@ -128,7 +128,7 @@ class ImageUploadCard extends React.Component {
                             </Fab>
                         </label>
                         {
-                            this.state.selectedFileList.length > 0 && this.state.selectedFileList.map((selectedFile, index) => {
+                            (this.state.selectedFileList && this.state.selectedFileList.length > 0) && this.state.selectedFileList.map((selectedFile, index) => {
                                 return <Card sx={{ maxWidth: 345 }} key={index}>
                                     <CardMedia
                                         alt="Img"
@@ -182,7 +182,7 @@ class ImageUploadCard extends React.Component {
                             </Fab>
                         </label>
                         {
-                            this.state.selectedFileList.length > 0 && this.state.selectedFileList.map((selectedFile, index) => {
+                            (this.state.selectedFileList && this.state.selectedFileList.length > 0) && this.state.selectedFileList.map((selectedFile, index) => {
                                 return <Card sx={{ maxWidth: 345 }} key={index}>
                                         <CardMedia
                                             alt="Img"

@@ -3,7 +3,8 @@ import {fonts} from "../Styles/theme";
 import {
   Box,
   Button,
-  Card, CardActions,
+  Card,
+  CardActions,
   CardContent,
   CardMedia,
   Dialog,
@@ -15,7 +16,8 @@ import {
   FormGroup,
   FormHelperText,
   FormLabel,
-  Grid, IconButton,
+  Grid,
+  IconButton,
   Switch,
   Typography
 } from "@mui/material";
@@ -38,7 +40,8 @@ import {
   updateCard,
   updateCardContact,
   updateCardStatus,
-  updateContact, updateSolution,
+  updateContact,
+  updateSolution,
   updateStatus,
   viewCard
 } from "../../redux/slices/cardSlice";
@@ -50,7 +53,6 @@ import Comment from "../common/comment"
 import {addAnswer} from "../../redux/slices/answerSlice";
 import FormControl from "@mui/material/FormControl";
 import ChatMessage from "../Chat/ChatMessage";
-import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
 const CardView = ({ question, subject }) => {
@@ -66,6 +68,7 @@ const CardView = ({ question, subject }) => {
   const [isUpdateStatus, setIsUpdateStatus] = useState(false);
   const [isAddAnswer, setIsAddAnswer] = useState(false);
   const [isUpdateSolution, setIsUpdateSolution] = useState(false);
+  const [isErrorViewSolution, setIsErrorViewSolution] = useState(false);
   const [updateCardFail, setUpdateCardFail] = useState(false);
   const [updateContactFail, setUpdateContactFail] = useState(false);
   const [updateStatusFail, setUpdateStatusFail] = useState(false);
@@ -187,7 +190,12 @@ const CardView = ({ question, subject }) => {
       margin: "5px",
       backgroundColor: "#FFF",
       cursor: "pointer"
-    }
+    },
+    solution: {
+      ...fonts.subjectCardNormal,
+      fontSize: "15px",
+      fontWeight: 300
+    },
   }
 
   const openAddQuestionDialog = () => {
@@ -201,6 +209,7 @@ const CardView = ({ question, subject }) => {
           if (commonUtility.isSuccess(result.code)) {
             // setDetailCard(result);
             setFileSelectedList(result.images);
+            setSolutionFileSelectedList(result.solutions);
             setOpenQuestionForm(!openQuestionForm);
           } else {
             console.log("View card has failed");
@@ -217,6 +226,7 @@ const CardView = ({ question, subject }) => {
     setIsAddAnswer(false);
     setIsUpdateStatus(false);
     setIsUpdateSolution(false);
+    setIsErrorViewSolution(false);
     setOpenQuestionForm(false);
   };
 
@@ -473,6 +483,22 @@ const CardView = ({ question, subject }) => {
           setUpdateSolutionFail(true);
           setIsUpdateSolution(true);
         });
+  }
+
+  const viewSolution = (e) => {
+    e.preventDefault();
+
+    if (solutionFileSelectedList.length <= 0) {
+      setIsErrorViewSolution(true);
+      return;
+    }
+
+    setTimeout(function() {
+      for (var i = 0; i < solutionFileSelectedList.length; i++) {
+        var newTab = window.open();
+        newTab.document.body.innerHTML = '<img src="' + solutionFileSelectedList[i].data + '">';
+      }
+    }, 500);
   }
 
   return (
@@ -870,9 +896,26 @@ const CardView = ({ question, subject }) => {
                           </Grid>
                           <Grid item xs={11}>
                             <Grid item xs={12}>
-                              <div><b>{detailCard.tutorName}</b> solved the question <a href="#">view here</a></div>
+                              <div style={viewStyles.solution}><b>{detailCard.tutorName}</b> solved the question <a href="#" onClick={viewSolution}>view here</a></div>
                             </Grid>
-                            <Grid item xs={12}>{detailCard.answerDate}</Grid>
+                            <Grid item xs={12}>
+                              <Typography variant="div" styles={viewStyles.solution}>{detailCard.answerDate}</Typography>
+                            </Grid>
+                          </Grid>
+                        </React.Fragment>
+                    )
+                  }
+                  {
+                    (commonUtility.checkRoleUser(currentUser.role) && commonUtility.isSolvedQuestion(detailCard.status) && isErrorViewSolution) && (
+                        <React.Fragment>
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={11}>
+                            <Stack sx={{ minWidth: 500 }} spacing={2}>
+                              <Alert severity='error'>
+                                <AlertTitle>Error view solution</AlertTitle>
+                                <strong>The solution is empty</strong>
+                              </Alert>
+                            </Stack>
                           </Grid>
                         </React.Fragment>
                     )
