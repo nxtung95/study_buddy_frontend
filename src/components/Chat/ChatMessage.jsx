@@ -1,44 +1,52 @@
 import React, {useState} from 'react';
 import SockJsClient from 'react-stomp';
-import chatAPI from "../../service/ChatAPI";
 import API_URL from "../../const/Constant";
 import Messages from "./Messages";
 import Input from "./Input";
 import "./Chat.css";
 import {useSelector} from "react-redux";
-import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
+import {Dialog, DialogContent, DialogTitle} from "@mui/material";
 
-const ChatMessage = ({openDialogChat, setOpenDialogChat, handleCloseDialogChat}) => {
+const ChatMessage = ({openDialogChat, handleCloseDialogChat, question}) => {
     const [messages, setMessages] = useState([])
     const currentUser = useSelector(state => state.user.currentUser);
+    var clientChat;
 
     let onConnected = () => {
         console.log("Connected!!")
     }
 
-    let onMessageReceived = (msg) => {
-        console.log('New Message Received!!', msg);
-        setMessages(messages.concat(msg));
+    let onMessageReceived = (data) => {
+        console.log('New Message Received!!', data);
+        const allMessage = [...messages, data];
+        setMessages(allMessage);
     }
 
     let onSendMessage = (msgText) => {
         const username = currentUser.firstName + " " + currentUser.lastName;
-        chatAPI.sendMessage(username, msgText).then(res => {
-        console.log('Sent', res);
-        }).catch(err => {
-            console.log('Error Occured while sending message to api');
-        })
+        const data = {
+            'sender': username,
+            'content': msgText,
+            'questionId': question.id
+        }
+        clientChat.sendMessage('/message/chat/send', JSON.stringify(data));
+        // const allMessage = [...messages, data];
+        // setMessages(allMessage);
+    }
+
+    const setClientChat = (client) => {
+        clientChat = client;
     }
 
     return (
         <Dialog
             open={openDialogChat}
             onClose={handleCloseDialogChat}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
+            fullWidth
+            style={{minWidth: "600px"}}
         >
             <DialogTitle id="alert-dialog-title">
-                {"Chat"}
+                {"Chat with tutor"}
             </DialogTitle>
             <DialogContent>
                 <div className="AppChat">
@@ -47,10 +55,11 @@ const ChatMessage = ({openDialogChat, setOpenDialogChat, handleCloseDialogChat})
                             <React.Fragment>
                                 <SockJsClient
                                     url={API_URL + "/ws-chat/"}
-                                    topics={['/topic/group/']}
+                                    topics={['/topic/question' + question.id]}
                                     onConnect={onConnected}
                                     onDisconnect={console.log("Disconnected!")}
                                     onMessage={msg => onMessageReceived(msg)}
+                                    ref={(client) => setClientChat(client)}
                                     debug={false}
                                 />
                                 <Messages

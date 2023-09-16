@@ -558,8 +558,9 @@ const CardView = ({ question, subject }) => {
             openDialogChat && (
                 <ChatMessage
                     openDialogChat={openDialogChat}
-                    setOpenDialogChat={setOpenDialogChat}
-                    handleCloseDialogChat={handleCloseDialogChat}>
+                    handleCloseDialogChat={handleCloseDialogChat}
+                    question={question}
+                >
                 </ChatMessage>
           )
         }
