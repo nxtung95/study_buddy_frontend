@@ -33,5 +33,15 @@ const subjectAPI = {
             },
         });
     },
+
+    view(data) {
+        return fetch(API_URL + "/app/subjects/view/" + data, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + authService.getAccessTokenHeader()
+            },
+        });
+    },
 }
 export default subjectAPI;

@@ -40,6 +40,19 @@ export const deleteSubject = createAsyncThunk(
     }
 );
 
+export const viewSubject = createAsyncThunk(
+    "subject/viewSubject",
+    async (data, thunkAPI) => {
+      try {
+        const response = await subjectAPI.view(data);
+
+        return response.json();
+      } catch (error) {
+        return thunkAPI.rejectWithValue({ error: "An error occurred" });
+      }
+    }
+);
+
 const subjectSlice = createSlice({
   name: "subject",
   initialState: {
@@ -110,6 +123,12 @@ const subjectSlice = createSlice({
     builder.addCase(editSubject.rejected, (state, action) => {
       state.isLoading = false;
       state.desc = action.payload.error;
+    });
+
+    builder.addCase(viewSubject.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.desc = action.payload.desc;
+      state.code = action.payload.code;
     });
   },
 });

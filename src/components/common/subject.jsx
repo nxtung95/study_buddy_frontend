@@ -7,7 +7,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import Menu from "@mui/material/Menu";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {addUserSubjectQuestion, deleteUserSubject, editUserSubject, findTutor} from "../../redux/slices/userSlice";
-import {deleteSubject, editSubject} from "../../redux/slices/subjectSlice";
+import {deleteSubject, editSubject, viewSubject} from "../../redux/slices/subjectSlice";
 import commonUtility from "../../utility/CommonUtility";
 import {
   Box,
@@ -39,7 +39,7 @@ const Subject = ({ subject }) => {
   const [openQuestionForm, setOpenQuestionForm] = useState(false);
   const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] = useState(false);
   const [openEditSubjectDialog, setOpenEditSubjectDialog] = useState(false);
-  const [title, setTitle] = useState(subject.title);
+  const [title, setTitle] = useState("");
   const [formErrors, setFormErrors] = useState({});
   const [editSubjectFail, setEditSubjectFail] = useState(false);
   const desc = useSelector(state => state.subject.desc);
@@ -102,6 +102,7 @@ const Subject = ({ subject }) => {
   };
 
   const handleCloseDeleteDialogConfirm = () => {
+    setAnchorEl(null);
     setOpenConfirmDeleteDialog(false);
   }
 
@@ -110,11 +111,24 @@ const Subject = ({ subject }) => {
   }
 
   const handleCloseEditSubjectDialog = () => {
+    setAnchorEl(null);
     setOpenEditSubjectDialog(false);
   }
 
   const handleOpenEditSubjectDialog = () => {
-    setOpenEditSubjectDialog(!openEditSubjectDialog);
+    dispatch(viewSubject(subject.id))
+        .unwrap()
+        .then((result) => {
+          if (commonUtility.isSuccess(result.code)) {
+            setTitle(result.subject.title);
+            setOpenEditSubjectDialog(!openEditSubjectDialog);
+          } else {
+            console.log("View subject has failed");
+          }
+        })
+        .catch(() => {
+          console.log("View subject has failed");
+        });
   }
 
   const clearErrorEditSubject = () => {
