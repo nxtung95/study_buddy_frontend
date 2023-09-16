@@ -501,6 +501,15 @@ const CardView = ({ question, subject }) => {
     }, 500);
   }
 
+  const handleVideoCall = (e) => {
+    e.preventDefault();
+
+    const userName = currentUser.firstName + " " + currentUser.lastName;
+
+    const url = process.env.PUBLIC_URL + "/VideoCall.html?roomId=" + question.id + "&userName=" + userName;
+    window.open(url);
+  }
+
   return (
       <React.Fragment>
         <div
@@ -897,7 +906,7 @@ const CardView = ({ question, subject }) => {
                           </Grid>
                           <Grid item xs={11}>
                             <Grid item xs={12}>
-                              <div style={viewStyles.solution}><b>{detailCard.tutorName}</b> solved the question <a href="#" onClick={viewSolution}>view here</a></div>
+                              <div style={viewStyles.solution}><b>{detailCard.tutorName}</b> solved the question <a href="#/" onClick={viewSolution}>view here</a></div>
                             </Grid>
                             <Grid item xs={12}>
                               <Typography variant="div" styles={viewStyles.solution}>{detailCard.answerDate}</Typography>
@@ -989,12 +998,12 @@ const CardView = ({ question, subject }) => {
                     }
                     {
                         detailCard.videoCall && (
-                            <VideocamIcon color="primary" fontSize="large" style={viewStyles.connectIcon}></VideocamIcon>
+                            <VideocamIcon color="primary" fontSize="large" style={viewStyles.connectIcon} onClick={handleVideoCall}></VideocamIcon>
                         )
                     }
                     {
                         detailCard.voiceCall && (
-                            <MicIcon color="primary" fontSize="large" style={viewStyles.connectIcon}></MicIcon>
+                            <MicIcon color="primary" fontSize="large" style={viewStyles.connectIcon} onClick={handleVideoCall}></MicIcon>
                         )
                     }
                   </Grid>
