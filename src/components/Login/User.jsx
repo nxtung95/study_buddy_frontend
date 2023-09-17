@@ -1,21 +1,21 @@
-import React, {useState} from "react";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import {useNavigate} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
-import {login} from "../../redux/slices/userSlice";
-import Stack from "@mui/material/Stack";
-import commonUtility from "../../utility/CommonUtility";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
 import CircularProgress from "@mui/material/CircularProgress";
+import Container from "@mui/material/Container";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Grid from "@mui/material/Grid";
+import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { login } from "../../redux/slices/userSlice";
+import commonUtility from "../../utility/CommonUtility";
 
 const User = () => {
   const navigate = useNavigate();
@@ -43,12 +43,19 @@ const User = () => {
       return;
     }
 
+    const clearState = () => {
+      setFormErrors({});
+      setLoginFailed(false);
+      setEmail("");
+      setPassword("");
+    }
+
     dispatch(login(data))
       .unwrap()
       .then((result) => {
         if (commonUtility.isSuccess(result.code)) {
+          clearState();
           navigate("/HomeScreen");
-          setLoginFailed(false);
         } else {
           setLoginFailed(true);
         }
@@ -91,12 +98,16 @@ const User = () => {
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
-            <Stack sx={{ width: '100%' }} spacing={2} visibility={loginFailed ? 'visible' : 'hidden'}>
-              <Alert severity="error">
-                <AlertTitle>Error Login</AlertTitle>
-                <strong>{desc}</strong>
-              </Alert>
+            {
+              loginFailed && (
+              <Stack sx={{ width: '100%' }} spacing={2}>
+                <Alert severity="error">
+                  <AlertTitle>Error Login</AlertTitle>
+                  <strong>{desc}</strong>
+                </Alert>
             </Stack>
+              )
+            }
             <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
               <TextField
                   margin="normal"
@@ -136,19 +147,19 @@ const User = () => {
               >
                 Log In
               </Button>
-              <Grid container>
+            </Box>
+            <Grid item container>
                 <Grid item xs>
                   <Link href="#" variant="body2">
                     Forgot password?
                   </Link>
                 </Grid>
-                <Grid item>
+                <Grid item xs>
                   <Link href="" variant="body2" onClick={handleSignupRedirect}>
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
-              </Grid>
-            </Box>
+            </Grid>
           </Box>
         </Container>
         <Box sx={{display: 'flex', position: 'fixed', left: '50%', top: '40%', opacity: '1'}} visibility={isLoading ? 'visible' : 'hidden'}>

@@ -207,7 +207,7 @@ const CardView = ({ question, subject }) => {
         .unwrap()
         .then((result) => {
           if (commonUtility.isSuccess(result.code)) {
-            // setDetailCard(result);
+            setInputText(result.inputText);
             setFileSelectedList(result.images);
             setSolutionFileSelectedList(result.solutions);
             setOpenQuestionForm(!openQuestionForm);

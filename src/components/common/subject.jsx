@@ -1,14 +1,5 @@
-import React, {useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {fonts} from "../Styles/theme";
-import CardView from "./card";
-import IconButton from "@mui/material/IconButton";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import Menu from "@mui/material/Menu";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import {addUserSubjectQuestion, deleteUserSubject, editUserSubject, findTutor} from "../../redux/slices/userSlice";
-import {deleteSubject, editSubject, viewSubject} from "../../redux/slices/subjectSlice";
-import commonUtility from "../../utility/CommonUtility";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {
   Box,
   Button,
@@ -20,17 +11,24 @@ import {
   FormControl,
   FormHelperText,
   MenuItem,
-  Select,
-  TextareaAutosize,
-  TextField
+  Select, TextField
 } from "@mui/material";
-import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
 import InputLabel from "@mui/material/InputLabel";
+import Menu from "@mui/material/Menu";
+import Stack from "@mui/material/Stack";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addCard } from "../../redux/slices/cardSlice";
+import { deleteSubject, editSubject, viewSubject } from "../../redux/slices/subjectSlice";
+import { addUserSubjectQuestion, deleteUserSubject, editUserSubject, findTutor } from "../../redux/slices/userSlice";
+import commonUtility from "../../utility/CommonUtility";
+import { fonts } from "../Styles/theme";
+import CardView from "./card";
 import ImageUploadCard from "./uploadImage";
-import {addCard} from "../../redux/slices/cardSlice";
 
 const Subject = ({ subject }) => {
   const dispatch = useDispatch();
@@ -364,7 +362,7 @@ const Subject = ({ subject }) => {
         )
       }
       {openQuestionForm && (
-          <Dialog open={openQuestionForm} onClose={closeAddQuestionDialog} fullWidth>
+          <Dialog open={openQuestionForm} onClose={closeAddQuestionDialog} maxWidth="md">
             <DialogTitle>Card</DialogTitle>
             <DialogContent>
               <DialogContentText>
@@ -429,12 +427,12 @@ const Subject = ({ subject }) => {
                     </FormControl>
                   </Grid>
                   <Grid item xs={12}>
-                    <TextareaAutosize
-                        minRows={15}
-                        style={{width: "500px"}}
+                    <textarea
+                        rows={15}
+                        style={{width: "100%"}}
                         placeholder="Enter input text question"
                         onChange={handleInputTextChange}>
-                    </TextareaAutosize>
+                    </textarea>
                     <FormHelperText disabled={!!formCardErrors['inputText']} style={{ color: "red" }}>{formCardErrors['inputText'] ? formCardErrors['inputText'].message : ''}</FormHelperText>
                   </Grid>
                   <Grid item xs={12} sx={{ mt: 2, mb: 5 }}>

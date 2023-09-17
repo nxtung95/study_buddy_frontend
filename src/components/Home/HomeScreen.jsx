@@ -6,6 +6,9 @@ import Board from "../common/board";
 import {useSelector} from "react-redux";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import IconButton from '@mui/material/IconButton';
+import {useNavigate} from "react-router-dom";
 
 const styles = {
   container: {
@@ -26,11 +29,28 @@ const styles = {
 
 const HomeScreen = () => {
   const isLoading = useSelector(state => state.card.isLoading);
+  const navigate = useNavigate();
+  
+  const handleLogout = (e) => {
+    e.preventDefault();
+
+    if (localStorage.getItem("access_token")) {
+      localStorage.removeItem("access_token");
+    }
+
+    navigate("/");
+  }
+
   return (
       <React.Fragment>
         <div style={{...styles.container, opacity: isLoading ? '0.5' : '1'}}>
           <div style={{...styles.container}}>
-            <Typography style={styles.title}>StudyBuddy</Typography>
+            <Box sx={{ display: 'inline-flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '98%'}}>
+              <Typography style={styles.title}>StudyBuddy</Typography>
+              <IconButton onClick={handleLogout}>
+                <LogoutOutlinedIcon fontSize="large" style={styles.title}></LogoutOutlinedIcon>
+              </IconButton>
+            </Box>
             <div style={styles.content}>
               <SideBar />
               <Board/>
