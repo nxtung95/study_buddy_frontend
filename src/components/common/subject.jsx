@@ -11,20 +11,19 @@ import {
   FormControl,
   FormHelperText,
   MenuItem,
-  Select, TextField
+  TextField
 } from "@mui/material";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
-import InputLabel from "@mui/material/InputLabel";
 import Menu from "@mui/material/Menu";
 import Stack from "@mui/material/Stack";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addCard } from "../../redux/slices/cardSlice";
 import { deleteSubject, editSubject, viewSubject } from "../../redux/slices/subjectSlice";
-import { addUserSubjectQuestion, deleteUserSubject, editUserSubject, findTutor } from "../../redux/slices/userSlice";
+import { addUserSubjectQuestion, deleteUserSubject, editUserSubject } from "../../redux/slices/userSlice";
 import commonUtility from "../../utility/CommonUtility";
 import { fonts } from "../Styles/theme";
 import CardView from "./card";
@@ -41,8 +40,6 @@ const Subject = ({ subject }) => {
   const [formErrors, setFormErrors] = useState({});
   const [editSubjectFail, setEditSubjectFail] = useState(false);
   const desc = useSelector(state => state.subject.desc);
-  const tutors = useSelector(state => state.user.tutors);
-  const [tutor, setTutor] = useState("");
   const [cardTitle, setCardTitle] = useState("");
   const [fileSelectedList, setFileSelectedList] = useState([]);
   const [inputText, setInputText] = useState("");
@@ -80,18 +77,19 @@ const Subject = ({ subject }) => {
   };
 
   const openAddQuestionDialog = () => {
-    dispatch(findTutor())
-        .unwrap()
-        .then((result) => {
-          if (commonUtility.isSuccess(result.code)) {
-            setOpenQuestionForm(!openQuestionForm);
-          } else {
-            console.log("Find tutor has failed");
-          }
-        })
-        .catch(() => {
-          console.log("Find tutor has failed");
-        });
+    setOpenQuestionForm(!openQuestionForm);
+    // dispatch(findTutor())
+    //     .unwrap()
+    //     .then((result) => {
+    //       if (commonUtility.isSuccess(result.code)) {
+    //         setOpenQuestionForm(!openQuestionForm);
+    //       } else {
+    //         console.log("Find tutor has failed");
+    //       }
+    //     })
+    //     .catch(() => {
+    //       console.log("Find tutor has failed");
+    //     });
   }
 
   const closeAddQuestionDialog = () => {
@@ -171,14 +169,8 @@ const Subject = ({ subject }) => {
   
   const clearDataCardForm = () => {
     setCardTitle("")
-    setTutor("");
     setFileSelectedList([]);
     setInputText("");
-  }
-
-  const handleTutorChange = (e) => {
-    setTutor(e.target.value);
-    clearErrorAddCard();
   }
 
   const handleChangeTitle = (e) => {
@@ -199,17 +191,17 @@ const Subject = ({ subject }) => {
       setFormCardErrors({...formCardErrors, title: {message : 'Please enter your question title'}});
       return;
     }
-    if (commonUtility.checkNullOrEmpty(tutor)) {
-      setFormCardErrors({...formCardErrors, tutor: {message : 'Please choose the tutor'}});
-      return;
-    }
+    // if (commonUtility.checkNullOrEmpty(tutor)) {
+    //   setFormCardErrors({...formCardErrors, tutor: {message : 'Please choose the tutor'}});
+    //   return;
+    // }
     if (commonUtility.checkNullOrEmpty(inputText)) {
       setFormCardErrors({...formCardErrors, inputText: {message : 'Please enter your question input text'}});
       return;
     }
 
     const card = {
-      "tutorId": tutor,
+      // "tutorId": tutor,
       "subjectId": subject.id,
       "title": cardTitle,
       "inputText": inputText,
@@ -403,7 +395,7 @@ const Subject = ({ subject }) => {
                         helperText={formCardErrors['title'] ? formCardErrors['title'].message : ''}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  {/* <Grid item xs={12}>
                     <FormControl fullWidth error={!!formCardErrors['tutor']} >
                       <InputLabel id="tutor-label">Tutor</InputLabel>
                       <Select
@@ -425,7 +417,7 @@ const Subject = ({ subject }) => {
                       </Select>
                       <FormHelperText disabled={!!formCardErrors['tutor']}>{formCardErrors['tutor'] ? formCardErrors['tutor'].message : ''}</FormHelperText>
                     </FormControl>
-                  </Grid>
+                  </Grid> */}
                   <Grid item xs={12}>
                     <textarea
                         rows={15}

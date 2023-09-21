@@ -31,18 +31,18 @@ export const login = createAsyncThunk(
   }
 );
 
-export const findTutor = createAsyncThunk(
-    "user/findTutor",
-    async (thunkAPI) => {
-      try {
-        const response = await userAPI.findTutor();
+// export const findTutor = createAsyncThunk(
+//     "user/findTutor",
+//     async (thunkAPI) => {
+//       try {
+//         const response = await userAPI.findTutor();
 
-        return response.json();
-      } catch (error) {
-        return thunkAPI.rejectWithValue({ error: "An error occurred" });
-      }
-    }
-);
+//         return response.json();
+//       } catch (error) {
+//         return thunkAPI.rejectWithValue({ error: "An error occurred" });
+//       }
+//     }
+// );
 
 const userSlice = createSlice({
   name: "user",
@@ -151,13 +151,13 @@ const userSlice = createSlice({
       state.desc = action.payload.error;
     });
 
-    builder.addCase(findTutor.fulfilled, (state, action) => {
-      state.desc = action.payload.desc;
-      state.code = action.payload.code;
-      if (action.payload.code === '00') {
-        state.tutors = action.payload.tutors;
-      }
-    });
+    // builder.addCase(findTutor.fulfilled, (state, action) => {
+    //   state.desc = action.payload.desc;
+    //   state.code = action.payload.code;
+    //   if (action.payload.code === '00') {
+    //     state.tutors = action.payload.tutors;
+    //   }
+    // });
   },
 });
 

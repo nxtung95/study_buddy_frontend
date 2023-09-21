@@ -85,7 +85,7 @@ const Sidebar = () => {
         <div style={styles.sidebar}>
           <div style={styles.buttons}>
             <button style={styles.button}>Profile</button>
-            <button style={styles.button}>Tutors</button>
+            <button style={styles.button}>{commonUtility.checkRoleUser(currentUser.role) ? 'Students' : 'Tutors'}</button>
             <button style={styles.button}>Board Settings</button>
             <div style={styles.line}></div>
             {commonUtility.checkRoleUser(currentUser.role) && (
