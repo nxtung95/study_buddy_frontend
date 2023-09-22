@@ -323,7 +323,7 @@ const CardView = ({ question, subject }) => {
 
     const answer = {
       "questionId": question.id,
-      "tutorId": question.tutorId,
+      "tutorId": currentUser.id,
       "content": content
     };
 
@@ -406,7 +406,8 @@ const CardView = ({ question, subject }) => {
 
     const data = {
       'questionId': question.id,
-      'status': detailCard.status === 1 ? 0 : 1
+      'status': detailCard.status === 1 ? 0 : 1,
+      'tutorId': currentUser.id
     }
 
     dispatch(updateStatus(data))
@@ -414,8 +415,8 @@ const CardView = ({ question, subject }) => {
         .then((result) => {
           handleCloseDialogChangeStatus();
           if (commonUtility.isSuccess(result.code)) {
-            dispatch(changeStatusQuestion(data))
-            dispatch(updateCardStatus(data));
+            dispatch(changeStatusQuestion(data));
+            dispatch(updateCardStatus(result.card));
             setUpdateStatusFail(false);;
           } else {
             setUpdateStatusFail(true);
@@ -589,7 +590,7 @@ const CardView = ({ question, subject }) => {
                   </Grid>
                   <Grid item xs={5}>
                     {
-                      commonUtility.checkRoleTutor(currentUser.role) && (
+                      ((commonUtility.checkRoleTutor(currentUser.role) && currentUser.id == detailCard.tutorId) || !commonUtility.isSolvedQuestion(deleteCard.status)) && (
                           <FormControlLabel
                               control={
                                 <Switch size="medium" checked={!!(detailCard && detailCard.status === 1)}
@@ -857,7 +858,7 @@ const CardView = ({ question, subject }) => {
                   }
 
                   {
-                      commonUtility.checkRoleTutor(currentUser.role) && (
+                      ((commonUtility.checkRoleTutor(currentUser.role) && currentUser.id == detailCard.tutorId) || !commonUtility.isSolvedQuestion(deleteCard.status)) && (
                           <React.Fragment>
                             <Grid item xs={1}>
                               <EmojiObjectsOutlinedIcon color="primary" fontSize="large"></EmojiObjectsOutlinedIcon>
@@ -932,7 +933,7 @@ const CardView = ({ question, subject }) => {
                   }
 
                   {
-                    commonUtility.checkRoleTutor(currentUser.role) && (
+                    ((commonUtility.checkRoleTutor(currentUser.role) && currentUser.id == detailCard.tutorId) || !commonUtility.isSolvedQuestion(deleteCard.status)) && (
                         <React.Fragment>
                           <Grid item xs={1}></Grid>
                           <Grid item xs={11}>

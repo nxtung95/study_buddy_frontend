@@ -118,6 +118,7 @@ const cardSlice = createSlice({
         },
         updateCardStatus: (state, action) => {
             state.detailCard.status = action.payload.status;
+            state.detailCard.tutorName = action.payload.tutorName;
         },
         updateCardSolution: (state, action) => {
             state.detailCard.solutions = action.payload.solutions;
