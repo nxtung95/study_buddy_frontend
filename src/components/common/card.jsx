@@ -511,6 +511,14 @@ const CardView = ({ question, subject }) => {
     window.open(url);
   }
 
+  const handleVoiceCall = (e) => {
+    e.preventDefault();
+
+    const userName = currentUser.firstName + " " + currentUser.lastName;
+    const url = process.env.PUBLIC_URL + "/VoiceChat.html?roomId=" + question.id + "&userName=" + userName;
+    window.open(url);
+  }
+
   return (
       <React.Fragment>
         <div
@@ -590,7 +598,7 @@ const CardView = ({ question, subject }) => {
                   </Grid>
                   <Grid item xs={5}>
                     {
-                      ((commonUtility.checkRoleTutor(currentUser.role) && currentUser.id == detailCard.tutorId) || !commonUtility.isSolvedQuestion(deleteCard.status)) && (
+                      ((commonUtility.checkRoleTutor(currentUser.role) && currentUser.id === detailCard.tutorId) || !commonUtility.isSolvedQuestion(deleteCard.status)) && (
                           <FormControlLabel
                               control={
                                 <Switch size="medium" checked={!!(detailCard && detailCard.status === 1)}
@@ -858,7 +866,7 @@ const CardView = ({ question, subject }) => {
                   }
 
                   {
-                      ((commonUtility.checkRoleTutor(currentUser.role) && currentUser.id == detailCard.tutorId) || !commonUtility.isSolvedQuestion(deleteCard.status)) && (
+                      ((commonUtility.checkRoleTutor(currentUser.role) && currentUser.id === detailCard.tutorId) || !commonUtility.isSolvedQuestion(deleteCard.status)) && (
                           <React.Fragment>
                             <Grid item xs={1}>
                               <EmojiObjectsOutlinedIcon color="primary" fontSize="large"></EmojiObjectsOutlinedIcon>
@@ -933,7 +941,7 @@ const CardView = ({ question, subject }) => {
                   }
 
                   {
-                    ((commonUtility.checkRoleTutor(currentUser.role) && currentUser.id == detailCard.tutorId) || !commonUtility.isSolvedQuestion(deleteCard.status)) && (
+                    ((commonUtility.checkRoleTutor(currentUser.role) && currentUser.id === detailCard.tutorId) || !commonUtility.isSolvedQuestion(deleteCard.status)) && (
                         <React.Fragment>
                           <Grid item xs={1}></Grid>
                           <Grid item xs={11}>
@@ -1004,7 +1012,7 @@ const CardView = ({ question, subject }) => {
                     }
                     {
                         detailCard.voiceCall && (
-                            <MicIcon color="primary" fontSize="large" style={viewStyles.connectIcon} onClick={handleVideoCall}></MicIcon>
+                            <MicIcon color="primary" fontSize="large" style={viewStyles.connectIcon} onClick={handleVoiceCall}></MicIcon>
                         )
                     }
                   </Grid>
