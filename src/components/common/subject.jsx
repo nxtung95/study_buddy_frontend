@@ -11,7 +11,11 @@ import {
   FormControl,
   FormHelperText,
   MenuItem,
-  TextField
+  TextField,
+  FormGroup,
+  FormControlLabel,
+  Switch,
+  FormLabel
 } from "@mui/material";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
@@ -47,6 +51,9 @@ const Subject = ({ subject }) => {
   const isLoadingCard = useSelector(state => state.card.isLoading);
   const descAddCard = useSelector(state => state.card.desc);
   const [addCardFail, setAddCardFail] = useState(false);
+  const [regisChat, setRegisChat] = useState(false);
+  const [regisVideoCall, setRegisVideoCall] = useState(false);
+  const [regisVoiceCall, setRegisVoiceCall] = useState(false);
 
   const handleMoreClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -94,6 +101,9 @@ const Subject = ({ subject }) => {
 
   const closeAddQuestionDialog = () => {
     clearDataCardForm();
+    setRegisChat(false);
+    setRegisVideoCall(false);
+    setRegisVoiceCall(false);
     setOpenQuestionForm(false);
   };
 
@@ -205,6 +215,9 @@ const Subject = ({ subject }) => {
       "subjectId": subject.id,
       "title": cardTitle,
       "inputText": inputText,
+      "regisChat": regisChat ? 1 : 0,
+      "regisVoiceCall": regisVoiceCall ? 1 : 0,
+      "regisVideoCall": regisVideoCall ? 1 : 0,
       "files": []
     };
     for (let i = 0; i < fileSelectedList.length; i++) {
@@ -232,6 +245,18 @@ const Subject = ({ subject }) => {
           setAddCardFail(true);
         });
 
+  }
+
+  const handleChangeRegisChat = (e) => {
+    setRegisChat(e.target.checked);
+  }
+
+  const handleChangeRegisVideoCall = (e) => {
+    setRegisVideoCall(e.target.checked);
+  }
+
+  const handleChangeRegisVoiceCall = (e) => {
+    setRegisVoiceCall(e.target.checked);
   }
 
   return (
@@ -430,6 +455,37 @@ const Subject = ({ subject }) => {
                   <Grid item xs={12} sx={{ mt: 2, mb: 5 }}>
                     <ImageUploadCard setFileSelectedList={setFileSelectedList} fileSelectedList={[]}/>
                   </Grid>
+                  {
+                    commonUtility.checkRoleUser(currentUser.role) && (
+                        <Grid item xs={12}>
+                          <FormControl component="fieldset" variant="standard">
+                            <FormLabel component="legend">Register contact</FormLabel>
+                            <FormGroup>
+                              <Box sx={{ display: 'inline-flex', justifyContent: 'flex-start', alignItems: 'flex-start', gap: "10px" }}>
+                                <FormControlLabel
+                                    control={
+                                      <Switch checked={regisChat} onChange={handleChangeRegisChat} name="isRegisChatMessage" />
+                                    }
+                                    label="Regis chat message"
+                                />
+                                <FormControlLabel
+                                    control={
+                                      <Switch checked={regisVoiceCall} onChange={handleChangeRegisVoiceCall} name="isRegisVoiceCall" />
+                                    }
+                                    label="Regis voice call"
+                                />
+                                <FormControlLabel
+                                    control={
+                                      <Switch checked={regisVideoCall} onChange={handleChangeRegisVideoCall} name="isRegisVideoCall" />
+                                    }
+                                    label="Regis video call"
+                                />
+                              </Box>
+                            </FormGroup>
+                          </FormControl>
+                        </Grid>
+                    )
+                  }
                 </Grid>
                 <Button
                     type="submit"

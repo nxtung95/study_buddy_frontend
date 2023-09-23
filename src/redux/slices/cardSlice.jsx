@@ -67,6 +67,19 @@ export const updateContact = createAsyncThunk(
     }
 );
 
+export const updateRegisterContact = createAsyncThunk(
+    "card/updateRegisterContact",
+    async (data, thunkAPI) => {
+        try {
+            const response = await cardAPI.updateRegisterContact(data);
+            return response.json();
+        } catch (error) {
+            console.log(error);
+            return thunkAPI.rejectWithValue({ error: "An error occurred" });
+        }
+    }
+);
+
 export const updateStatus = createAsyncThunk(
     "card/updateStatus",
     async (data, thunkAPI) => {
@@ -114,6 +127,16 @@ const cardSlice = createSlice({
                 state.detailCard.voiceCall = data.voiceCall;
             } else if (data.type === 1) {
                 state.detailCard.videoCall = data.videoCall;
+            }
+        },
+        updateRegistCardContact: (state, action) => {
+            const data = action.payload;
+            if (data.type === 0) {
+                state.detailCard.registChat = data.registChat;
+            } else if (data.type === 2) {
+                state.detailCard.registVoiceCall = data.registVoiceCall;
+            } else if (data.type === 1) {
+                state.detailCard.registVideoCall = data.registVideoCall;
             }
         },
         updateCardStatus: (state, action) => {
@@ -187,6 +210,12 @@ const cardSlice = createSlice({
             state.code = action.payload.code;
         });
 
+        builder.addCase(updateRegisterContact.fulfilled, (state, action) => {
+            state.isLoading = false;
+            state.desc = action.payload.desc;
+            state.code = action.payload.code;
+        });
+
         builder.addCase(updateStatus.fulfilled, (state, action) => {
             state.isLoading = false;
             state.desc = action.payload.desc;
@@ -200,6 +229,6 @@ const cardSlice = createSlice({
         });
     },
 });
-export const { addAnswerCard, updateCardContact, updateCardStatus, updateCardSolution } = cardSlice.actions;
+export const { addAnswerCard, updateCardContact, updateCardStatus, updateCardSolution, updateRegistCardContact } = cardSlice.actions;
 export const { isLoading, code, desc, detailCard} = (state) => state.card;
 export default cardSlice.reducer;
